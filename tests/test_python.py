@@ -2,11 +2,18 @@
 import io
 import math
 import struct
+from importlib.resources import files
 from datetime import date, datetime, time, timezone
 import pytest
 import ylspec
 
 PREFIX = "[_ylspec]\nversion='0.1'\nprofile='core.data'\nprofile_version='0.1'\n[data]\n"
+
+
+def test_installed_package_includes_documented_type_stubs():
+    package = files("ylspec")
+    for name in ("__init__.pyi", "_native.pyi", "py.typed"):
+        assert package.joinpath(name).is_file(), f"Missing installed typing resource: {name}"
 
 
 def test_roundtrip_and_exact_temporal():

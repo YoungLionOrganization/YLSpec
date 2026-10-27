@@ -128,7 +128,9 @@ and exactly the document bytes declared in that header. Determining the region
 size may seek to the end, but does not read the host payload.
 
 See the [Python API](docs/python-api.md) for types, profile validators, errors,
-and exact timestamps.
+and exact timestamps. Detailed `__init__.pyi` and `_native.pyi` stubs and a
+`py.typed` marker ship with the package for editor completion and static checks;
+no separate stub distribution is required.
 
 ## C quick start
 

@@ -4,6 +4,31 @@ The `ylspec` package requires CPython 3.11 or newer and uses its bundled native
 extension. Runtime installation has no Python package dependencies. The initial
 wheel targets are listed in [compatibility](compatibility.md).
 
+## Editor support and bundled type stubs
+
+The package includes detailed PEP 561 type information alongside the native
+extension. No separate `types-ylspec` dependency or downloaded stub package is
+needed. Editors can provide completion and parameter documentation before the
+native module is imported.
+
+| Installed file | Contract |
+|---|---|
+| `ylspec/__init__.pyi` | Public API, recursive application values, envelope shapes, stream protocol, documented errors and limits |
+| `ylspec/_native.pyi` | Positional-only extension methods, normalized value transport, temporal tuples, callback and consumed-length contracts |
+| `ylspec/py.typed` | Marker identifying the distribution as a typed package |
+
+The public stub distinguishes application values from the reserved metadata
+table, preserves the return type of subclasses through `Document.validate`,
+accepts path-like objects where the runtime does, and requires a seekable binary
+reader for embedded I/O. Type checks cannot establish runtime size bounds,
+TOML syntax, profile approval, or the absence of cycles; those checks remain in
+the implementation.
+
+GitHub Actions checks consumer examples with mypy and Pyright, compares the
+public stub against the installed implementation with stubtest, and verifies
+that every tested wheel includes both stubs and the marker. The same source
+files are included in the source distribution for downstream rebuilds.
+
 ## Documents and values
 
 `Document(data=None, profile="core.data", profile_version="0.1",

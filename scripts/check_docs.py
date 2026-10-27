@@ -31,7 +31,7 @@ def main():
                 errors.append("README.md: missing executable C quick start")
             else:
                 (generated / "readme.c").write_text(snippet.group(1), encoding="utf-8")
-    for folder, pattern in [("src", "*.c"), ("include", "*.h"), ("python", "*.py"), ("python", "*.c"), ("tests", "*.c"), ("tests", "*.py"), ("scripts", "*.py"), ("examples", "*.c"), ("examples", "*.py")]:
+    for folder, pattern in [("src", "*.c"), ("include", "*.h"), ("python", "*.py"), ("python", "*.pyi"), ("python", "*.c"), ("tests", "*.c"), ("tests", "*.py"), ("scripts", "*.py"), ("examples", "*.c"), ("examples", "*.py")]:
         for path in (ROOT / folder).rglob(pattern):
             first = path.read_text(encoding="utf-8").splitlines()[0]
             if "Copyright 2026 Cavanşir Qurbanzadə" not in first or "SPDX-License-Identifier: Apache-2.0" not in first:
