@@ -1,0 +1,4 @@
+# Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
+@PACKAGE_INIT@
+include("${CMAKE_CURRENT_LIST_DIR}/YLSpecTargets.cmake")
+check_required_components(YLSpec)

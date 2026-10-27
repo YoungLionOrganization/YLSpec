@@ -1,0 +1,11 @@
+flowchart TD
+    Standalone["Standalone UTF-8 .ylspec"] --> Parse["Length-bounded C parser"]
+    Host["Host supplies offset and available region"] --> Header["Read and validate 32-byte header"]
+    Header --> Text["Read only the declared text bytes"]
+    Text --> Parse
+    Parse --> Envelope["Validate standard envelope and limits"]
+    Envelope --> Tree["Owned typed value tree"]
+    Tree --> Profiles["Explicit profile and required-feature validation"]
+    Tree --> Serialize["Serialize text or embedding frame"]
+    Tree --> Python["Native CPython extension"]
+    Tree --> CLI["Native inspection CLI"]

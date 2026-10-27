@@ -1,0 +1,89 @@
+# Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
+name: Publish release
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ylspec-publish
+  cancel-in-progress: false
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require the main branch
+        env:
+          REF: ${{ github.ref }}
+        run: test "$REF" = refs/heads/main
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - run: python scripts/release.py metadata
+  verify:
+    needs: gate
+    uses: ./.github/workflows/verify.yml
+  stage:
+    needs: verify
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: artifacts
+      - name: Stage and validate complete release
+        run: |
+          python scripts/release.py stage --sha "$GITHUB_SHA"
+          python -m pip install twine
+          python -c "import json,pathlib,subprocess; v=json.loads(pathlib.Path('release/release.json').read_text())['version']; subprocess.run(['python','-m','twine','check',*map(str,pathlib.Path('dist/release').glob('*.whl')),f'dist/release/ylspec-{v}.tar.gz'],check=True)"
+      - name: Create draft and attach verified assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/release.py draft --source dist/release --sha "$GITHUB_SHA"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-staged
+          path: dist/release/*
+          if-no-files-found: error
+  pypi:
+    needs: stage
+    runs-on: ubuntu-24.04
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-staged
+          path: staged
+      - name: Verify existing PyPI files and select unpublished distributions
+        id: pending
+        run: python scripts/release.py pending --source staged --output pending
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
+        if: steps.pending.outputs.has_files == 'true'
+        with:
+          packages-dir: pending/
+          attestations: true
+  finalize:
+    needs: pypi
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/release.py finalize

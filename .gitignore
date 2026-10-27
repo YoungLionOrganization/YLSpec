@@ -1,0 +1,15 @@
+build*/
+dist/
+wheelhouse/
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+*.so
+*.pyd
+*.dll
+*.a
+*.lib
+_skbuild/
+artifacts/

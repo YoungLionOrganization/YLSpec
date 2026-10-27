@@ -1,0 +1,16 @@
+# Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
+[_ylspec]
+version = "0.1"
+profile = "core.data"
+profile_version = "0.1"
+
+[data]
+name = "Example desktop settings"
+theme = "dark"
+scale = 1.25
+
+[data.shortcuts]
+terminal = ["Control", "Alt", "T"]
+
+[extensions."xyz.younglion.desktop"]
+animations = true

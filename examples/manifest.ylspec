@@ -1,0 +1,12 @@
+# Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
+[_ylspec]
+version = "0.1"
+profile = "core.data"
+profile_version = "0.1"
+
+[data]
+id = "xyz.younglion.example"
+name = "Example component"
+version = "1.0.0"
+description = "Illustrative metadata; no package or plugin semantics are implied."
+platforms = ["linux-x86_64", "windows-x64", "macos-arm64"]

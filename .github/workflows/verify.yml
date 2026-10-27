@@ -1,0 +1,156 @@
+# Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
+name: Verification and build
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  quality:
+    name: Documentation, conformance, sanitizers, and fuzzing
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+          cache: false
+      - name: Install verification tools
+        run: python -m pip install 'ruff>=0.11,<1' build twine pytest
+      - name: Validate documentation and release inputs
+        run: |
+          python scripts/check_docs.py
+          python scripts/release.py metadata
+          ruff check python scripts tests examples
+      - name: Render Mermaid diagram
+        run: |
+          mkdir -p build/docs
+          npx --yes --package @mermaid-js/mermaid-cli@11 mmdc -i docs/architecture.mmd -o build/docs/architecture.svg -p scripts/puppeteer.json
+      - name: Build and test C with sanitizers
+        env:
+          ASAN_OPTIONS: detect_leaks=1
+        run: |
+          cmake -S . -B build/sanitize -DCMAKE_BUILD_TYPE=Debug -DYLSPEC_SANITIZE=ON
+          cmake --build build/sanitize --parallel 2
+          ctest --test-dir build/sanitize --output-on-failure
+      - name: Verify TOML 1.1 parser conformance
+        run: |
+          go install github.com/toml-lang/toml-test/v2/cmd/toml-test@v2.2.0
+          toml-test test -toml=1.1 -decoder=./build/sanitize/ylspec_toml_decoder
+      - name: Fuzz text and frame decoders
+        run: |
+          CC=clang cmake -S . -B build/fuzz -DYLSPEC_FUZZ=ON -DBUILD_TESTING=OFF
+          cmake --build build/fuzz --target ylspec_fuzz --parallel 2
+          mkdir -p build/corpus
+          cp examples/*.ylspec build/corpus/
+          build/fuzz/ylspec_fuzz build/corpus -max_total_time=30 -max_len=65536 -timeout=5
+      - name: Build and check source distribution
+        run: |
+          python -m build --sdist --outdir dist/source
+          python -m twine check dist/source/*
+          python -m pip install dist/source/*.tar.gz
+          python examples/basic.py
+          python scripts/benchmark.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: source
+          path: dist/source/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verification-reports
+          path: |
+            build/docs/architecture.svg
+            benchmark.json
+          if-no-files-found: error
+  native:
+    name: Native ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, target: linux-x86_64}
+          - {os: ubuntu-24.04-arm, target: linux-arm64}
+          - {os: windows-2022, target: windows-x64}
+          - {os: macos-15-intel, target: macos-x86_64}
+          - {os: macos-15, target: macos-arm64}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Build and test static and shared C libraries
+        shell: bash
+        run: |
+          cmake -S . -B build/static -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=stage/static
+          cmake --build build/static --config Release --parallel 2
+          ctest --test-dir build/static -C Release --output-on-failure
+          cmake --install build/static --config Release
+          cmake -S . -B build/shared -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=stage/shared
+          cmake --build build/shared --config Release --parallel 2
+          ctest --test-dir build/shared -C Release --output-on-failure
+          cmake --install build/shared --config Release
+          python scripts/package_native.py '${{ matrix.target }}'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-${{ matrix.target }}
+          path: dist/native/*
+          if-no-files-found: error
+  wheels:
+    name: Wheels ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, target: linux-x86_64, arch: x86_64}
+          - {os: ubuntu-24.04-arm, target: linux-arm64, arch: aarch64}
+          - {os: windows-2022, target: windows-x64, arch: AMD64}
+          - {os: macos-15-intel, target: macos-x86_64, arch: x86_64}
+          - {os: macos-15, target: macos-arm64, arch: arm64}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - uses: pypa/cibuildwheel@b9e566a2b284570af229f6c2a33673410d0389a3 # v4.3.4
+        env:
+          CIBW_ARCHS: ${{ matrix.arch }}
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: wheels-${{ matrix.target }}
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+  interpreters:
+    name: CPython ${{ matrix.python }} stable ABI
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12', '3.13', '3.14', '3.15']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.11'
+      - name: Build against the minimum supported ABI
+        run: python -m pip wheel . --no-deps --wheel-dir dist/abi
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Test installed wheel on selected interpreter
+        run: |
+          python -m pip install dist/abi/*.whl pytest
+          python -m pytest tests/test_python.py -q
+          python examples/basic.py
