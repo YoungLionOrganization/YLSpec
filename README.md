@@ -198,7 +198,8 @@ unmeasured speed threshold.
 
 The manually dispatched publish workflow rebuilds and verifies one commit,
 creates a draft release, attaches checksummed assets, publishes the same Python
-distributions to PyPI through OIDC, and then publishes the GitHub Release.
+distributions to PyPI using the `PYPI_API_TOKEN` GitHub Actions secret, and then
+publishes the GitHub Release.
 Read [publishing](docs/publishing.md) before the first release.
 
 ## Documentation map

@@ -15,39 +15,31 @@ CMake, Python package metadata, release scripts, and the Git tag derive their
 version from `release.json`. Update that source once and include its notes in the
 same commit. Do not commit compiled outputs into `release/`.
 
-## One-time PyPI Trusted Publisher setup
+## One-time PyPI API token setup
 
-No PyPI API token needs to be placed in GitHub Secrets.
+The workflow authenticates using a PyPI API token stored as a GitHub Actions
+repository secret. An existing token can be used if it permits uploading the
+`ylspec` project. Prefer a project-scoped token when that project already exists.
 
-1. Sign in to [PyPI](https://pypi.org/) and enable account two-factor
-   authentication if required.
-2. Open [account Publishing](https://pypi.org/manage/account/publishing/) and add
-   a **pending GitHub publisher** for a new project.
-3. Enter exactly these values:
+1. Open [the repository's Actions secrets settings](https://github.com/YoungLionOrganization/YLSpec/settings/secrets/actions).
+2. Select **New repository secret**.
+3. Set **Name** to exactly `PYPI_API_TOKEN`.
+4. Paste the complete PyPI API token, including its `pypi-` prefix, into **Secret**.
+5. Select **Add secret**.
 
-| PyPI field | Value |
-|---|---|
-| PyPI project name | `ylspec` |
-| Owner | `YoungLionOrganization` |
-| Repository name | `YLSpec` |
-| Workflow name | `publish.yml` |
-| Environment name | `pypi` |
+Create the entry under **Secrets**, not **Variables**. Do not commit the token,
+place it in release metadata, or add it to an example file. The workflow passes
+`${{ secrets.PYPI_API_TOKEN }}` directly to the publishing action's password
+input and uses the literal username `__token__`.
 
-4. In the GitHub repository, open **Settings → Environments** and confirm `pypi`
-   exists (create it if setting up a fresh clone of the workflow).
-   If the repository plan supports environment protection, restrict publishing
-   to `main` and the maintainers permitted to release. The original repository
-   has its `pypi` environment configured with a `main` branch deployment policy.
-5. Keep the publisher configuration matched to the workflow file and environment.
+The repository's `pypi` environment remains restricted to `main`. It does not
+require a Trusted Publisher registration when using this API-token workflow.
+The publish job reports a clear error if unpublished files exist but the secret
+is missing. Updating the repository secret rotates the token without a code
+change. Repository privacy does not make uploaded PyPI distributions private.
 
-A pending publisher does not reserve a package name. The first successful upload
-creates the project, provided the name remains available. Existing projects use
-their project-level **Publishing** settings instead. Repository privacy does
-not make PyPI distributions private: uploading publishes the source distribution
-and wheels publicly. Keep public-release readiness in mind when dispatching.
-
-See [PyPI's first-project instructions](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/)
-and [OIDC publishing documentation](https://docs.pypi.org/trusted-publishers/using-a-publisher/).
+See [GitHub's repository-secret instructions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets)
+and [the PyPA publishing action](https://github.com/pypa/gh-action-pypi-publish).
 
 ## Dispatching a release
 
@@ -60,13 +52,13 @@ flowchart TD
     Inputs["Validate release inputs on main"] --> Verify["Run reusable verification and fresh builds"]
     Verify --> Stage["Validate assets and package versions; compute SHA-256"]
     Stage --> Draft["Create pinned tag and draft; attach assets"]
-    Draft --> OIDC["Publish matching distributions through PyPI OIDC"]
-    OIDC --> Final["Publish GitHub Release"]
+    Draft --> Token["Publish matching distributions using PYPI_API_TOKEN"]
+    Token --> Final["Publish GitHub Release"]
 ```
 
-Only the publishing job receives `id-token: write`; only release-management jobs
-receive `contents: write`. External actions are pinned to recorded immutable
-commits in `.github/action-pins.json`.
+The PyPI token is referenced only by the publishing job. No OIDC permission is
+requested; only release-management jobs receive `contents: write`. External
+actions are pinned to recorded immutable commits in `.github/action-pins.json`.
 
 ## Assets and provenance
 
@@ -78,15 +70,17 @@ static and shared installations, each with notices and CMake exports.
 
 The pipeline verifies completeness before creating a draft. It does not take
 an unrelated branch's "latest successful build" and attach it to a new tag.
-The PyPA publishing action generates supported PyPI attestations.
+PyPI digital attestations are disabled because the publishing action requires
+Trusted Publishing for that feature. The SHA-256 manifest remains included.
 
 ## Failure and retry behavior
 
 - Verification or missing assets: stop before release creation.
 - Existing tag at another commit: fail without moving it.
 - Existing asset with different bytes: fail without replacing it.
-- PyPI/OIDC failure: retain the GitHub draft for inspection; fix the publisher
-  configuration and rerun failed jobs to reuse the same staged artifacts.
+- PyPI authentication failure: retain the GitHub draft for inspection; correct
+  the repository secret or token permissions and rerun failed jobs to reuse the
+  same staged artifacts.
 - Existing PyPI filename: compare the published SHA-256 before skipping it.
   Different bytes require a new version.
 - GitHub finalization failure after PyPI success: rerun failed finalization;

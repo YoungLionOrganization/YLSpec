@@ -57,7 +57,6 @@ jobs:
     environment: pypi
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
@@ -70,11 +69,22 @@ jobs:
       - name: Verify existing PyPI files and select unpublished distributions
         id: pending
         run: python scripts/release.py pending --source staged --output pending
+      - name: Require the PyPI API token
+        if: steps.pending.outputs.has_files == 'true'
+        env:
+          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          if [ -z "$PYPI_API_TOKEN" ]; then
+            echo "::error::Add the PYPI_API_TOKEN repository secret in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
       - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
         if: steps.pending.outputs.has_files == 'true'
         with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: pending/
-          attestations: true
+          attestations: false
   finalize:
     needs: pypi
     runs-on: ubuntu-24.04
