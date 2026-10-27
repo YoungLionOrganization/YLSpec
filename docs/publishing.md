@@ -33,9 +33,11 @@ No PyPI API token needs to be placed in GitHub Secrets.
 | Workflow name | `publish.yml` |
 | Environment name | `pypi` |
 
-4. In the GitHub repository, open **Settings → Environments** and create `pypi`.
+4. In the GitHub repository, open **Settings → Environments** and confirm `pypi`
+   exists (create it if setting up a fresh clone of the workflow).
    If the repository plan supports environment protection, restrict publishing
-   to `main` and the maintainers permitted to release.
+   to `main` and the maintainers permitted to release. The original repository
+   has its `pypi` environment configured with a `main` branch deployment policy.
 5. Keep the publisher configuration matched to the workflow file and environment.
 
 A pending publisher does not reserve a package name. The first successful upload

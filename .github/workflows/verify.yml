@@ -52,6 +52,7 @@ jobs:
           cmake --build build/fuzz --target ylspec_fuzz --parallel 2
           mkdir -p build/corpus
           cp examples/*.ylspec build/corpus/
+          build/sanitize/ylspec pack examples/config.ylspec > build/corpus/frame.bin
           build/fuzz/ylspec_fuzz build/corpus -max_total_time=30 -max_len=65536 -timeout=5
       - name: Build and check source distribution
         run: |
