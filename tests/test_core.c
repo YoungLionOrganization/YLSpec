@@ -27,6 +27,7 @@ int main(void){
     frame.data[16]=255;frame.data[23]=255;CHECK(yl_unpack(frame.data,frame.size,0,NULL,&round,NULL,&e)==YL_LIMIT);
     l.max_document_bytes=10;CHECK(yl_parse(sample,sizeof(sample)-1,&l,&round,&e)==YL_LIMIT);
     l=yl_default_limits();l.max_depth=1;CHECK(yl_parse(sample,sizeof(sample)-1,&l,&round,&e)==YL_LIMIT);
+    CHECK(yl_parse(sample,sizeof(sample)-1,&l,&round,NULL)==YL_LIMIT);
     CHECK(yl_parse("\xff",1,NULL,&round,&e)==YL_SYNTAX);
     CHECK(!yl_temporal("date","2026-10-27 # unsafe",19));
     CHECK(yl_set((yl_value*)yl_get(yl_root(d),"_ylspec",7),"profile",7,yl_string("xyz.example",11),&e)==YL_OK);

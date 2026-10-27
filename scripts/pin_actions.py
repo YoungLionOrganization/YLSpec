@@ -3,6 +3,7 @@
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,12 +17,14 @@ def api(endpoint):
 
 
 def main():
-    pins = {}
+    pin_file = ROOT / ".github/action-pins.json"
+    pins = json.loads(pin_file.read_text()) if pin_file.exists() and "--refresh" not in sys.argv else {}
     for action in ACTIONS:
-        tag = "release/v1" if action.endswith("gh-action-pypi-publish") else api(f"repos/{action}/releases/latest")["tag_name"]
-        commit = api(f"repos/{action}/commits/{tag}")["sha"]
-        pins[action] = {"tag": tag, "sha": commit}
-        print(f"{action}: {tag} -> {commit}")
+        if action not in pins:
+            tag = "release/v1" if action.endswith("gh-action-pypi-publish") else api(f"repos/{action}/releases/latest")["tag_name"]
+            commit = api(f"repos/{action}/commits/{tag}")["sha"]
+            pins[action] = {"tag": tag, "sha": commit}
+        print(f"{action}: {pins[action]['tag']} -> {pins[action]['sha']}")
     for path in (ROOT / ".github/workflows").glob("*.yml"):
         text = path.read_text(encoding="utf-8")
         for action, pin in pins.items():

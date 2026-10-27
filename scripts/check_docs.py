@@ -9,6 +9,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     errors = []
+    generated = ROOT / "build/docs"
+    generated.mkdir(parents=True, exist_ok=True)
+    diagram_index = 0
     for path in [ROOT / "README.md", *sorted((ROOT / "docs").glob("*.md")), *sorted((ROOT / "release/notes").glob("*.md"))]:
         text = path.read_text(encoding="utf-8")
         for target in re.findall(r"\]\(([^)]+)\)", text):
@@ -19,6 +22,15 @@ def main():
                 errors.append(f"{path.relative_to(ROOT)}: broken local link {target}")
         if text.count("```") % 2:
             errors.append(f"{path.name}: unclosed code fence")
+        for diagram in re.findall(r"```mermaid\n(.*?)```", text, re.S):
+            (generated / f"diagram-{diagram_index}.mmd").write_text(diagram, encoding="utf-8")
+            diagram_index += 1
+        if path.name == "README.md":
+            snippet = re.search(r"```c\n(.*?)```", text, re.S)
+            if not snippet:
+                errors.append("README.md: missing executable C quick start")
+            else:
+                (generated / "readme.c").write_text(snippet.group(1), encoding="utf-8")
     for folder, pattern in [("src", "*.c"), ("include", "*.h"), ("python", "*.py"), ("python", "*.c"), ("tests", "*.c"), ("tests", "*.py"), ("scripts", "*.py"), ("examples", "*.c"), ("examples", "*.py")]:
         for path in (ROOT / folder).rglob(pattern):
             first = path.read_text(encoding="utf-8").splitlines()[0]

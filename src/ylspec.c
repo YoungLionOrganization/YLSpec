@@ -134,10 +134,12 @@ static yl_value *convert(toml_datum_t d,const char *source,size_t size,const siz
     }if(!v)fail(e,YL_MEMORY,"Cannot allocate value");return v;
 }
 yl_status yl_parse(const char *text,size_t n,const yl_limits *limits,yl_document **out,yl_error *e){
-    yl_limits l=limits?*limits:yl_default_limits();size_t i,bad=0,line_count=1,*lines;toml_result_t result;yl_value *root;yl_status s;
+    yl_error local_error;yl_limits l=limits?*limits:yl_default_limits();size_t i,bad=0,line_count=1,*lines;toml_result_t result;yl_value *root;yl_status s;
+    if(!e)e=&local_error;
     if(e)memset(e,0,sizeof(*e));if(out)*out=NULL;
     if(!text||!out||!l.max_document_bytes||!l.max_depth||l.max_depth>YL_HARD_DEPTH)return fail(e,YL_INVALID,"Invalid parse arguments or limits");
     if(n>l.max_document_bytes||n>INT_MAX)return fail(e,YL_LIMIT,"Document byte limit exceeded");
+    if(n>=3&&(unsigned char)text[0]==0xef&&(unsigned char)text[1]==0xbb&&(unsigned char)text[2]==0xbf)return fail(e,YL_SYNTAX,"UTF-8 byte-order mark is not permitted");
     if(!utf8(text,n,&bad)||memchr(text,0,n)){fail(e,YL_SYNTAX,"Document must be valid UTF-8 without literal NUL bytes");if(e)e->offset=bad;return YL_SYNTAX;}
     for(i=0;i<n;i++)if(text[i]=='\n')line_count++;
     if(line_count>SIZE_MAX/sizeof(*lines))return fail(e,YL_LIMIT,"Too many lines");

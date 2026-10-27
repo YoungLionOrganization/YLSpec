@@ -109,6 +109,9 @@ def test_toml_11_and_special_values():
     assert doc.data["x"]["a"] == "\x1bA"
     assert math.isnan(doc.data["y"]) and doc.data["z"] == -math.inf
     assert ylspec.loads(ylspec.dumps(doc)).data["t"].text == "12:34"
+    with pytest.raises(ylspec.ParseError):
+        ylspec.loads(PREFIX + 'μ="requires quotes"')
+    assert ylspec.loads(PREFIX + '"μ"="quoted Unicode key"').data["μ"] == "quoted Unicode key"
 
 
 def test_error_positions_and_stream_failure():

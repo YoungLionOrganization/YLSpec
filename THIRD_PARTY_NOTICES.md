@@ -19,7 +19,9 @@ The conformance driver originates from upstream `test/stdtest/parser.c`.
 Local modifications: raise the dotted-key component limit to 129 and the parser's
 bracket/brace ceilings to 128, enabling YLSpec's documented configurable depth;
 adjust the conformance driver's include path and cast `isprint` arguments to
-`unsigned char`. The YLSpec document depth limit is enforced separately.
+`unsigned char`; enforce ASCII-only bare keys as required by TOML 1.1 rather
+than upstream's Unicode bare-key extension. The YLSpec document depth limit is
+enforced separately.
 
 YLSpec validates UTF-8 before parsing and retains temporal source literals rather
 than relying on the parser's microsecond-resolution timestamp representation.
