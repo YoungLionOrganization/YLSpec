@@ -23,6 +23,7 @@ def main():
     vendor = editor / "engine/licenses/tomlc17"
     vendor.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / "vendor/tomlc17/LICENSE", vendor / "LICENSE")
+    shutil.copytree(ROOT / "vendor/emscripten", editor / "engine/licenses/emscripten", dirs_exist_ok=True)
     cairosvg.svg2png(url=str(editor / "images/icon.svg"), write_to=str(editor / "images/icon.png"))
     (ROOT / "dist/editor").mkdir(parents=True, exist_ok=True)
 

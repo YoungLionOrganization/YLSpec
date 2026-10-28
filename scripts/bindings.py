@@ -71,6 +71,7 @@ def prepare_javascript():
     license_path = ROOT / "javascript/licenses/tomlc17"
     license_path.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ROOT / "vendor/tomlc17/LICENSE", license_path / "LICENSE")
+    shutil.copytree(ROOT / "vendor/emscripten", ROOT / "javascript/licenses/emscripten", dirs_exist_ok=True)
     wasm = ROOT / "javascript/wasm"
     wasm.mkdir(parents=True, exist_ok=True)
     (wasm / "version.mjs").write_text("// Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0\nexport const version = " + json.dumps(version) + ";\n", encoding="utf-8")

@@ -29,6 +29,23 @@ The upstream parser also has implementation limits: 16,384 entries per table or
 array and bounded numeric/temporal literal buffers. These are documented in the
 [compatibility guide](docs/compatibility.md).
 
+## WebAssembly runtime components
+
+Browser and editor distributions include runtime code emitted by Emscripten
+6.0.13, including applicable libc/compiler runtime portions. The upstream
+Emscripten license, author list, musl copyright file, and compiler-rt license are
+preserved under [vendor/emscripten](vendor/emscripten/README.md), pinned to
+Emscripten commit `e13ee988ce3d87a738dd8f3661d02223308c412a`.
+The npm package includes these under `licenses/emscripten/`; the VS Code VSIX
+includes them under `engine/licenses/emscripten/`. Emscripten offers MIT and
+NCSA licensing; the original component notices describe the applicable terms
+and exceptions. YLSpec does not alter their copyright dates or ownership.
+
+Development-only dependencies such as React, Playwright, TypeScript, VS Code
+test tooling, `vsce`, and CairoSVG are installed by CI. They are not runtime
+npm dependencies or bundled editor dependencies. The editor's icon is an
+original project SVG rendered to PNG during packaging.
+
 ## Verification tooling
 
 GitHub Actions installs the separately licensed `toml-test` v2.2.0 test harness,
