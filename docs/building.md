@@ -73,6 +73,11 @@ is exercised on an API 26 emulator. The editor job consumes that same run's
 WebAssembly, tests the TextMate grammar and actual VS Code Extension Host, and
 packages the VSIX. All become required release outputs.
 
+Android SDK downloads are serialized across ABI jobs to avoid concurrent CDN
+download bursts. SDK installation has at most three attempts with a short
+backoff; compilation and runtime checks still fail immediately on errors. A
+failed dependency download never counts as a successful ABI verification.
+
 Sources and integration details are documented in the
 [JavaScript guide](../javascript/README.md), [JVM guide](../jvm/README.md), and
 [editor guide](vscode.md). The standard document/frame encoding is unchanged

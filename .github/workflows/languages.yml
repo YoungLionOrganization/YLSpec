@@ -129,11 +129,19 @@ jobs:
       fail-fast: false
       matrix:
         abi: [armeabi-v7a, arm64-v8a, x86, x86_64]
+      max-parallel: 1
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Install NDK and cross-compile
         run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.2.13676358'
+          for attempt in 1 2 3; do
+            if "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.2.13676358'; then
+              break
+            fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            echo "::warning::NDK download or installation failed; retrying after attempt $attempt of 3."
+            sleep 10
+          done
           cmake -S . -B build/android -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$ANDROID_HOME/ndk/28.2.13676358/build/cmake/android.toolchain.cmake" -DANDROID_ABI=${{ matrix.abi }} -DANDROID_PLATFORM=android-26 -DYLSPEC_BUILD_JNI=ON -DBUILD_TESTING=OFF -DYLSPEC_BUILD_CLI=OFF
           cmake --build build/android --parallel 2
           mkdir -p jvm/android/src/main/jni/${{ matrix.abi }}
