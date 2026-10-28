@@ -1,6 +1,5 @@
 # Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
 """Collect only allowlisted adapter binaries from this run's downloaded artifacts."""
-from pathlib import Path
 import shutil
 from bindings import ROOT, NODE_TARGETS, JVM_TARGETS, ANDROID_ABIS
 

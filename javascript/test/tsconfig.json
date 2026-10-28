@@ -1,1 +1,1 @@
-{"compilerOptions":{"target":"ES2022","module":"NodeNext","moduleResolution":"NodeNext","strict":true,"noEmit":true,"jsx":"react-jsx","skipLibCheck":false},"include":["usage.ts","react-example.tsx"]}
+{"compilerOptions":{"target":"ES2022","module":"NodeNext","moduleResolution":"NodeNext","strict":true,"noEmit":true,"jsx":"react-jsx","skipLibCheck":false},"include":["usage.ts","usage.cts","react-example.tsx"]}

@@ -7,7 +7,7 @@
   "module": "./src/index.mjs",
   "types": "./src/index.d.ts",
   "exports": {
-    ".": {"types": "./src/index.d.ts", "browser": "./src/web.mjs", "import": "./src/index.mjs", "require": "./src/index.cjs"},
+    ".": {"browser": {"types": "./src/index.d.ts", "default": "./src/web.mjs"}, "import": {"types": "./src/index.d.ts", "default": "./src/index.mjs"}, "require": {"types": "./src/index.d.cts", "default": "./src/index.cjs"}},
     "./web": {"types": "./src/index.d.ts", "default": "./src/web.mjs"},
     "./node": {"types": "./src/node.d.ts", "default": "./src/node.mjs"}
   },

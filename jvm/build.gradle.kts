@@ -5,6 +5,12 @@ plugins { base; kotlin("jvm") version "2.4.20" apply false }
 version = Regex("\"version\":\\s*\"([^\"]+)\"").find(file("../release/release.json").readText())!!.groupValues[1]
 allprojects { group = "io.github.younglionorganization"; version = rootProject.version; repositories { mavenCentral() } }
 subprojects {
+    plugins.withId("java") {
+        extensions.configure<JavaPluginExtension> {
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
+        }
+    }
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
     extensions.configure<PublishingExtension> {
