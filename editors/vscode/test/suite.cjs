@@ -7,7 +7,8 @@ const {pathToFileURL} = require('node:url');
 const vscode = require('vscode');
 const {template} = require('../src/metadata.cjs');
 exports.run = async () => {
-  const extension = vscode.extensions.getExtension('YoungLionOrganization.ylspec');
+  const {publisher, name} = require('../package.json');
+  const extension = vscode.extensions.getExtension(`${publisher}.${name}`);
   assert.ok(extension, 'Extension must be installed in the development host');
   const api = await extension.activate();
   const document = await vscode.workspace.openTextDocument({language: 'ylspec', content: template});

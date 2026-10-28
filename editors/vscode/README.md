@@ -41,7 +41,7 @@ code --install-extension ylspec-0.1.1.vsix
 
 Marketplace availability requires a separately registered publisher and a
 successful Marketplace upload. A packaged VSIX is usable without that upload.
-The package identifier is `YoungLionOrganization.ylspec`.
+The package identifier is `ylvsmp.ylspec`, published by YoungLion (`ylvsmp`).
 
 ## Start a document
 
@@ -78,7 +78,7 @@ To opt into semantic formatting and select this formatter:
 {
   "ylspec.format.enabled": true,
   "[ylspec]": {
-    "editor.defaultFormatter": "YoungLionOrganization.ylspec"
+    "editor.defaultFormatter": "ylvsmp.ylspec"
   }
 }
 ```
