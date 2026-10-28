@@ -26,4 +26,12 @@ subprojects {
         if (key != null) useInMemoryPgpKeys(key, System.getenv("MAVEN_GPG_PASSPHRASE"))
         sign(extensions.getByType<PublishingExtension>().publications)
     }
+    tasks.withType<Zip>().configureEach {
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
+        from(rootProject.file("../LICENSE")) { into("META-INF") }
+        from(rootProject.file("../NOTICE")) { into("META-INF") }
+        from(rootProject.file("../THIRD_PARTY_NOTICES.md")) { into("META-INF") }
+        from(rootProject.file("../vendor/tomlc17/LICENSE")) { into("META-INF/licenses/tomlc17") }
+    }
 }

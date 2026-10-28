@@ -29,7 +29,8 @@ def metadata():
 
 
 def digest(path):
-    return hashlib.file_digest(path.open("rb"), "sha256").hexdigest()
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
 def gh(*args):
@@ -41,7 +42,7 @@ def stage(source, destination, sha):
     info = metadata()
     expected = json.loads((ROOT / "release/assets.json").read_text())
     destination.mkdir(parents=True, exist_ok=True)
-    files = list(source.rglob("*.whl")) + list(source.rglob("*.tar.gz"))
+    files = [p for pattern in ("*.whl", "*.tar.gz", "*.tgz", "*.jar", "*.aar", "*.pom", "*.zip") for p in source.rglob(pattern)]
     names = set()
     for path in files:
         if path.name in names:
@@ -69,6 +70,9 @@ def stage(source, destination, sha):
     sdist = destination / expected["source_pattern"].format(version=info["version"])
     if not sdist.is_file():
         raise ValueError("Missing source distribution")
+    for pattern in expected.get("language_assets", []):
+        if pattern.format(version=info["version"]) not in names:
+            raise ValueError(f"Missing language artifact: {pattern}")
     with tarfile.open(sdist) as archive:
         member = next(m for m in archive.getmembers() if m.name.endswith("/PKG-INFO") and m.name.count("/") == 1)
         if f"\nVersion: {info['version']}\n" not in archive.extractfile(member).read().decode():

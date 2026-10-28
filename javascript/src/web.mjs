@@ -1,6 +1,7 @@
 // Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
 import initialize from '../wasm/core.mjs';
 import {makeClient} from './model.mjs';
+import {version} from '../wasm/version.mjs';
 const decoder = new TextDecoder('utf-8');
 const codes = ['ok', 'invalid', 'syntax', 'limit', 'memory', 'frame', 'unsupported', 'io', 'profile'];
 /** Each factory owns a separate WASM instance. Pass wasmBinary for custom bundlers. */
@@ -20,5 +21,5 @@ export async function createClient(options = {}) {
       }
       return module.HEAPU8.slice(module._yl_web_data(), module._yl_web_data() + module._yl_web_size());
     } finally {module._free(pointer);}
-  }, 'wasm', '0.1.1');
+  }, 'wasm', version);
 }

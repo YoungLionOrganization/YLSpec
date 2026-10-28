@@ -13,3 +13,16 @@ __pycache__/
 *.lib
 _skbuild/
 artifacts/
+.gradle/
+node_modules/
+javascript/prebuilds/
+javascript/wasm/
+javascript/licenses/
+javascript/LICENSE
+javascript/NOTICE
+javascript/THIRD_PARTY_NOTICES.md
+javascript/package-lock.json
+jvm/natives/src/main/resources/natives/
+jvm/android/src/main/jni/
+*.node
+*.tgz

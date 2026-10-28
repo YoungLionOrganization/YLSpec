@@ -1,0 +1,210 @@
+# Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
+name: Language adapters
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  desktop:
+    name: Node and JNI ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, node: linux-x64-gnu, jvm: linux-x86_64, docker: x86_64}
+          - {os: ubuntu-24.04-arm, node: linux-arm64-gnu, jvm: linux-arm64, docker: aarch64}
+          - {os: windows-2022, node: win32-x64, jvm: windows-x86_64, docker: ''}
+          - {os: macos-15-intel, node: darwin-x64, jvm: macos-x86_64, docker: ''}
+          - {os: macos-26, node: darwin-arm64, jvm: macos-arm64, docker: ''}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with: {python-version: '3.13'}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with: {node-version: '24'}
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with: {gradle-version: '9.1.0'}
+      - name: Build desktop adapters
+        shell: bash
+        run: |
+          if [ -n '${{ matrix.docker }}' ]; then
+            python scripts/bindings.py headers
+            node_version="$(node -p process.version)"
+            docker run --rm -v "$PWD:/source" -v "$JAVA_HOME:/jdk:ro" -w /source -e JAVA_HOME=/jdk -e "YLSPEC_NODE_HEADERS=/source/build/node-headers/node-${node_version}/include/node" quay.io/pypa/manylinux_2_28_${{ matrix.docker }} bash -lc 'export PATH=/opt/python/cp313-cp313/bin:$PATH; python -m pip install "cmake>=3.26"; python scripts/bindings.py desktop --node-target ${{ matrix.node }} --jvm-target ${{ matrix.jvm }}'
+          else
+            python scripts/bindings.py desktop --node-target '${{ matrix.node }}' --jvm-target '${{ matrix.jvm }}'
+          fi
+      - name: Test Java, Kotlin, and native Node
+        shell: bash
+        run: |
+          case '${{ matrix.jvm }}' in
+            windows*) library=ylspec_jni.dll;;
+            macos*) library=libylspec_jni.dylib;;
+            *) library=libylspec_jni.so;;
+          esac
+          native_path="$PWD/jvm/natives/src/main/resources/natives/${{ matrix.jvm }}/$library"
+          if [ '${{ runner.os }}' = Windows ]; then native_path="$(cygpath -w "$native_path")"; fi
+          gradle -p jvm :java:smokeTest :kotlin:smokeTest -Dylspec.native.path="$native_path" --no-daemon
+          cd javascript
+          npm test
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: bindings-${{ matrix.node }}
+          path: |
+            javascript/prebuilds/
+            jvm/natives/src/main/resources/natives/
+          if-no-files-found: error
+  musl:
+    name: Alpine Node and JNI ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, arch: x64, jvm: x86_64}
+          - {os: ubuntu-24.04-arm, arch: arm64, jvm: arm64}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Build and execute against musl
+        run: |
+          docker run --rm -v "$PWD:/source" -w /source -e JAVA_HOME=/usr/lib/jvm/java-17-openjdk alpine:3.21 sh -ec '
+            apk add --no-cache python3 cmake make gcc musl-dev nodejs nodejs-dev npm openjdk17-jdk
+            python3 scripts/bindings.py desktop --system-headers --node-target linux-${{ matrix.arch }}-musl --jvm-target linux-${{ matrix.jvm }}-musl
+            cd javascript && npm test && cd ..
+            mkdir -p build/java-musl
+            javac -encoding UTF-8 -d build/java-musl $(find jvm/java/src -name "*.java")
+            java -Dylspec.native.path=/source/jvm/natives/src/main/resources/natives/linux-${{ matrix.jvm }}-musl/libylspec_jni.so -cp build/java-musl io.github.younglionorganization.ylspec.SmokeTest'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: bindings-linux-${{ matrix.arch }}-musl
+          path: |
+            javascript/prebuilds/
+            jvm/natives/src/main/resources/natives/
+          if-no-files-found: error
+  wasm:
+    name: Browser WebAssembly and React
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with: {python-version: '3.13'}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with: {node-version: '24'}
+      - name: Install pinned Emscripten SDK
+        run: |
+          git clone --branch 6.0.13 --depth 1 https://github.com/emscripten-core/emsdk.git build/emsdk
+          test "$(git -C build/emsdk rev-parse HEAD)" = 35659964bc2762fffec0d257997fb61475f765b7
+          build/emsdk/emsdk install 6.0.13
+          build/emsdk/emsdk activate 6.0.13
+      - name: Build the C core as WebAssembly
+        run: |
+          source build/emsdk/emsdk_env.sh
+          emcmake cmake -S . -B build/web -DCMAKE_BUILD_TYPE=Release -DYLSPEC_BUILD_WASM=ON -DYLSPEC_BUILD_CLI=OFF -DBUILD_TESTING=OFF
+          cmake --build build/web --parallel 2
+          python scripts/bindings.py prepare-js
+          cp build/web/core.mjs build/web/core.wasm javascript/wasm/
+      - name: Type-check and test in a real browser
+        working-directory: javascript
+        run: |
+          npm install --ignore-scripts
+          npm run typecheck
+          npx playwright install --with-deps chromium
+          npm run test:browser
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: bindings-wasm
+          path: javascript/wasm/
+          if-no-files-found: error
+  android:
+    name: Android JNI ${{ matrix.abi }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [armeabi-v7a, arm64-v8a, x86, x86_64]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Install NDK and cross-compile
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'ndk;28.2.13676358'
+          cmake -S . -B build/android -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$ANDROID_HOME/ndk/28.2.13676358/build/cmake/android.toolchain.cmake" -DANDROID_ABI=${{ matrix.abi }} -DANDROID_PLATFORM=android-26 -DYLSPEC_BUILD_JNI=ON -DBUILD_TESTING=OFF -DYLSPEC_BUILD_CLI=OFF
+          cmake --build build/android --parallel 2
+          mkdir -p jvm/android/src/main/jni/${{ matrix.abi }}
+          cp build/android/libylspec_jni.so jvm/android/src/main/jni/${{ matrix.abi }}/
+          "$ANDROID_HOME/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm" -D build/android/libylspec_jni.so | grep Java_io_github_younglionorganization_ylspec_Native_process
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: bindings-android-${{ matrix.abi }}
+          path: jvm/android/src/main/jni/
+          if-no-files-found: error
+  package:
+    name: Package npm and Maven distributions
+    needs: [desktop, musl, wasm, android]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with: {python-version: '3.13'}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with: {node-version: '24'}
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with: {gradle-version: '9.1.0'}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with: {pattern: 'bindings-*', path: build/downloads}
+      - name: Collect native resource trees
+        run: python scripts/collect_bindings.py
+      - name: Build JVM publications and npm tarball
+        run: |
+          gradle -p jvm publishAllPublicationsToStagingRepository --no-daemon
+          python scripts/bindings.py package
+          mkdir -p build/npm-consumer
+          cd build/npm-consumer
+          npm install --ignore-scripts ../../dist/languages/*.tgz
+          node --input-type=module -e "import {createClient} from '@younglionorganization/ylspec'; const y=await createClient(); if(y.unpack(y.pack(new y.Document({n:42n}))).data.n!==42n) throw Error('Packaged native module failed');"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with: {name: language-packages, path: 'dist/languages/*', if-no-files-found: error}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: android-smoke-inputs
+          path: |
+            jvm/java/build/libs/java-*.jar
+            jvm/android/build/distributions/*.aar
+          if-no-files-found: error
+  android-runtime:
+    name: Android API 26 runtime
+    needs: package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with: {gradle-version: '8.14.3'}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with: {name: android-smoke-inputs, path: jvm}
+      - name: Enable KVM access
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@4c44018e59b437e86cdfc41da381398f93ed8808
+        with:
+          api-level: 26
+          arch: x86_64
+          disable-animations: true
+          script: |
+            gradle -p jvm/android-smoke assembleDebug --no-daemon
+            adb install -r jvm/android-smoke/build/outputs/apk/debug/ylspec-android-smoke-debug.apk
+            adb shell am instrument -w io.github.younglionorganization.ylspec.smoke/.SmokeInstrumentation | tee build-android-result.txt
+            grep 'YLSpec Android JNI tests passed' build-android-result.txt

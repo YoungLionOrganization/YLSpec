@@ -38,7 +38,7 @@ wheel.packages = ["python/ylspec"]
 wheel.py-api = "cp311"
 install.components = ["python"]
 cmake.args = ["-DYLSPEC_BUILD_PYTHON=ON", "-DYLSPEC_BUILD_CLI=OFF", "-DBUILD_TESTING=OFF", "-DBUILD_SHARED_LIBS=OFF"]
-sdist.include = ["include/**", "src/**", "vendor/**", "release/**", "cmake/**", "tests/**", "examples/**", "python/**", "CMakeLists.txt", "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"]
+sdist.include = ["include/**", "src/**", "bindings/**", "vendor/**", "release/**", "cmake/**", "tests/**", "examples/**", "python/**", "CMakeLists.txt", "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"]
 
 [tool.scikit-build.metadata.version]
 provider = "scikit_build_core.metadata.regex"

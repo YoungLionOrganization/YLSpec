@@ -84,7 +84,7 @@ jobs:
           - {os: ubuntu-24.04-arm, target: linux-arm64}
           - {os: windows-2022, target: windows-x64}
           - {os: macos-15-intel, target: macos-x86_64}
-          - {os: macos-15, target: macos-arm64}
+          - {os: macos-26, target: macos-arm64}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
@@ -119,7 +119,7 @@ jobs:
           - {os: ubuntu-24.04-arm, target: linux-arm64, arch: aarch64}
           - {os: windows-2022, target: windows-x64, arch: AMD64}
           - {os: macos-15-intel, target: macos-x86_64, arch: x86_64}
-          - {os: macos-15, target: macos-arm64, arch: arm64}
+          - {os: macos-26, target: macos-arm64, arch: arm64}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 35
     steps:
@@ -176,9 +176,12 @@ jobs:
         run: pyright --pythonversion 3.11 tests/typing/usage.py
       - name: Compare public stubs with the installed runtime
         run: python -m mypy.stubtest ylspec --ignore-missing-stub
+  languages:
+    name: Native JS, JVM, and Android
+    uses: ./.github/workflows/languages.yml
   assemble:
     name: Validate complete release candidate
-    needs: [quality, native, wheels, interpreters, typing]
+    needs: [quality, native, wheels, interpreters, typing, languages]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:

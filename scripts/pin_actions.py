@@ -9,7 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ACTIONS = ["actions/checkout", "actions/setup-python", "actions/upload-artifact",
            "actions/download-artifact", "actions/setup-go", "actions/setup-node",
-           "pypa/cibuildwheel", "pypa/gh-action-pypi-publish"]
+           "pypa/cibuildwheel", "pypa/gh-action-pypi-publish", "actions/setup-java",
+           "gradle/actions/setup-gradle", "reactivecircus/android-emulator-runner"]
 
 
 def api(endpoint):
@@ -21,8 +22,9 @@ def main():
     pins = json.loads(pin_file.read_text()) if pin_file.exists() and "--refresh" not in sys.argv else {}
     for action in ACTIONS:
         if action not in pins:
-            tag = "release/v1" if action.endswith("gh-action-pypi-publish") else api(f"repos/{action}/releases/latest")["tag_name"]
-            commit = api(f"repos/{action}/commits/{tag}")["sha"]
+            repository = "/".join(action.split("/")[:2])
+            tag = "release/v1" if action.endswith("gh-action-pypi-publish") else api(f"repos/{repository}/releases/latest")["tag_name"]
+            commit = api(f"repos/{repository}/commits/{tag}")["sha"]
             pins[action] = {"tag": tag, "sha": commit}
         print(f"{action}: {pins[action]['tag']} -> {pins[action]['sha']}")
     for path in (ROOT / ".github/workflows").glob("*.yml"):
