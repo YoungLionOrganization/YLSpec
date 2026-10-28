@@ -1,6 +1,8 @@
 # YLSpec
 
 [![CI](https://github.com/YoungLionOrganization/YLSpec/actions/workflows/ci.yml/badge.svg)](https://github.com/YoungLionOrganization/YLSpec/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/ylspec)](https://pypi.org/project/ylspec/)
+[![PyPI distributions](https://img.shields.io/pypi/format/ylspec)](https://pypi.org/project/ylspec/#files)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Format: 0.1](https://img.shields.io/badge/format-0.1-orange.svg)](docs/specification.md)
 [![Python: 3.11–3.15](https://img.shields.io/badge/Python-3.11%E2%80%933.15-3776AB.svg)](docs/compatibility.md)
@@ -71,16 +73,17 @@ document validity independently of the reference implementation.
 
 ## Installation
 
-After the first PyPI release, install the native Python package with:
+Install the published native Python package with:
 
 ```sh
 python -m pip install ylspec
 ```
 
-Until then, download a wheel from a successful **CI** run's `wheels-*` artifact
-and install that wheel with `python -m pip install path/to/the-wheel.whl`.
-The release workflow adds published distributions to PyPI; this README does not
-display a PyPI version badge before a real project exists.
+Version `0.1.1` is available on [PyPI](https://pypi.org/project/ylspec/0.1.1/) and
+in the checksummed [GitHub Release](https://github.com/YoungLionOrganization/YLSpec/releases/tag/v0.1.1).
+For offline installation, download a matching release wheel and install it with
+`python -m pip install path/to/the-wheel.whl`. Verification-only builds are also
+available in successful **CI** runs' `wheels-*` artifacts.
 
 Native release assets contain both `static/` and `shared/` installations, with
 headers, libraries, CLI binaries, CMake package exports, and license notices.

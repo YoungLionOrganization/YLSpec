@@ -104,5 +104,6 @@ Rerun failed jobs in the same workflow run where possible. A fresh run rebuilds
 artifacts, and different binary bytes will correctly prevent replacement of an
 existing release asset. PyPI does not allow reusing deleted filenames.
 
-After the first public PyPI publication, add PyPI version and distribution badges
-using the real project URL and verify them. Keep experimental status visible.
+The README's PyPI version and distribution badges reference the published
+`ylspec` project. Keep experimental status visible and add other registry badges
+only after the corresponding publication actually exists.
