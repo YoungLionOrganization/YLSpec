@@ -2,7 +2,7 @@
   "name": "ylspec",
   "displayName": "YLSpec",
   "description": "YLSpec language support with C-backed validation, syntax highlighting, completions, and optional formatting",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "ylvsmp",
   "author": {"name": "Cavanşir Qurbanzadə", "email": "cavanshirpro@gmail.com"},
   "license": "Apache-2.0",

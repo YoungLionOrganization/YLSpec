@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2
+
+Align Maven publications with `xyz.younglion` and the VS Code extension with
+`ylvsmp.ylspec`. Enable Marketplace OIDC Trusted Publishing, centralize registry
+identities, and reject mismatched publisher/group/version metadata before upload.
+Preserve Java package names, native entry points, and document/frame format 0.1.
+
+See the [distribution migration notes](release/notes/v0.1.2.md).
+
 ## 0.1.1
 
 Native Node-API and browser WebAssembly clients with TypeScript contracts;

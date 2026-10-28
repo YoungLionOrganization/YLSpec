@@ -22,7 +22,7 @@ on Node.js and WebAssembly in browsers and React applications. Java and Kotlin
 use JNI on desktop JVMs and Android. A VS Code extension brings the same parser
 to `.ylspec` editing.
 
-**Status:** `0.1.1`, experimental. The specification and APIs may change before
+**Status:** `0.1.2`, experimental. The specification and APIs may change before
 1.0. Review the [compatibility policy](docs/compatibility.md) before depending on
 an experimental version. A release's support claims are backed by its linked
 GitHub Actions run. Package-registry publication requires the account setup
@@ -79,8 +79,8 @@ Install the published native Python package with:
 python -m pip install ylspec
 ```
 
-Version `0.1.1` is available on [PyPI](https://pypi.org/project/ylspec/0.1.1/) and
-in the checksummed [GitHub Release](https://github.com/YoungLionOrganization/YLSpec/releases/tag/v0.1.1).
+Published versions are available on [PyPI](https://pypi.org/project/ylspec/) and
+in the checksummed [GitHub Releases](https://github.com/YoungLionOrganization/YLSpec/releases).
 For offline installation, download a matching release wheel and install it with
 `python -m pip install path/to/the-wheel.whl`. Verification-only builds are also
 available in successful **CI** runs' `wheels-*` artifacts.
@@ -102,9 +102,9 @@ See [building](docs/building.md) for source builds and supported toolchains.
 |---|---|---|
 | JavaScript / TypeScript / Node.js | `@younglionorganization/ylspec`, native Node-API | [JavaScript API](javascript/README.md) |
 | Browser / React | The same npm package, bundled C WebAssembly | [Browser initialization](javascript/README.md#browser-and-react) |
-| Java / Kotlin desktop | `io.github.younglionorganization:ylspec` and `ylspec-kotlin` | [JVM guide](jvm/README.md) |
+| Java / Kotlin desktop | `xyz.younglion:ylspec` and `ylspec-kotlin` | [JVM guide](jvm/README.md) |
 | Android | Common Java/Kotlin API plus `ylspec-android` JNI AAR | [Android dependencies](jvm/README.md#android) |
-| VS Code | `ylspec-0.1.1.vsix`; language tools using bundled WebAssembly | [Editor guide](docs/vscode.md) |
+| VS Code | `ylvsmp.ylspec` / `ylspec-0.1.2.vsix`; language tools using bundled WebAssembly | [Editor guide](docs/vscode.md) |
 
 These names describe the built distributions. npm, Central, and Marketplace
 listings become available after their separate publishing workflows succeed.

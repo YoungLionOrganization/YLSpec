@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+- Publish under the configured YoungLion Marketplace publisher as `ylvsmp.ylspec`.
+- Authenticate GitHub publication through OIDC Trusted Publishing without a stored PAT.
+- Validate the VSIX publisher, name, and version before registry upload.
+- Preserve the existing document features and formatting opt-in policy.
+
 ## 0.1.1
 
 - Add `.ylspec` language mode, TOML syntax highlighting, metadata completions, hover descriptions, and snippets.

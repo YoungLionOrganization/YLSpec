@@ -1,6 +1,6 @@
 {
-  "version": "0.1.1",
-  "title": "YLSpec 0.1.1 — Native language libraries and VS Code tooling",
-  "notes": "release/notes/v0.1.1.md",
+  "version": "0.1.2",
+  "title": "YLSpec 0.1.2 — Verified registry identities and Trusted Publishing",
+  "notes": "release/notes/v0.1.2.md",
   "prerelease": false
 }

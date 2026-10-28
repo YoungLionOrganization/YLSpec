@@ -11,8 +11,8 @@ npm install @younglionorganization/ylspec
 ```
 
 This command requires a completed npm publication. Before then, install the
-checksummed `younglionorganization-ylspec-0.1.1.tgz` asset from the GitHub Release
-with `npm install ./younglionorganization-ylspec-0.1.1.tgz`. Installation never
+checksummed `younglionorganization-ylspec-0.1.2.tgz` asset from the GitHub Release
+with `npm install ./younglionorganization-ylspec-0.1.2.tgz`. Installation never
 downloads or compiles a native binary; supported binaries are already packaged.
 
 ## Node.js and TypeScript

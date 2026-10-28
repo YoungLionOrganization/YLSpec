@@ -4,7 +4,7 @@
 
 | Version | Initial value | Meaning |
 |---|---|---|
-| Library release | `0.1.1` | C core, language adapters, and tools |
+| Library release | `0.1.2` | C core, language adapters, and tools |
 | Document format | `0.1` | Envelope and document semantics |
 | Embedding frame | major 0, minor 1 | Binary framing contract |
 | Generic profile | `core.data` / `0.1` | Unconstrained data-table profile |

@@ -30,13 +30,13 @@ inside the VSIX; initialization does not download a parser.
 
 ## Install
 
-Download `ylspec-0.1.1.vsix` from a verified
+Download `ylspec-0.1.2.vsix` from a verified
 [GitHub Release](https://github.com/YoungLionOrganization/YLSpec/releases).
 In VS Code, open **Extensions → … → Install from VSIX…**, then select that file.
 Alternatively:
 
 ```sh
-code --install-extension ylspec-0.1.1.vsix
+code --install-extension ylspec-0.1.2.vsix
 ```
 
 Marketplace availability requires a separately registered publisher and a
