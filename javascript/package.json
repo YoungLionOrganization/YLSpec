@@ -1,0 +1,22 @@
+{
+  "name": "@younglionorganization/ylspec",
+  "version": "0.1.1",
+  "description": "Native C-backed YLSpec documents for Node.js, TypeScript, React, and browsers",
+  "type": "module",
+  "main": "./src/index.cjs",
+  "module": "./src/index.mjs",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {"types": "./src/index.d.ts", "browser": "./src/web.mjs", "import": "./src/index.mjs", "require": "./src/index.cjs"},
+    "./web": {"types": "./src/index.d.ts", "default": "./src/web.mjs"},
+    "./node": {"types": "./src/node.d.ts", "default": "./src/node.mjs"}
+  },
+  "files": ["src", "prebuilds", "wasm", "README.md", "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "licenses"],
+  "license": "Apache-2.0",
+  "author": {"name": "Cavanşir Qurbanzadə", "email": "cavanshirpro@gmail.com"},
+  "repository": {"type": "git", "url": "git+https://github.com/YoungLionOrganization/YLSpec.git", "directory": "javascript"},
+  "engines": {"node": ">=20"},
+  "publishConfig": {"access": "public"},
+  "scripts": {"test": "node --test test/node.test.mjs", "typecheck": "tsc --noEmit -p test/tsconfig.json", "test:browser": "playwright test -c test/playwright.config.mjs"},
+  "devDependencies": {"typescript": "5.9.3", "@types/node": "22.18.6", "@playwright/test": "1.56.1", "react": "19.2.0", "react-dom": "19.2.0", "@types/react": "19.2.2", "@types/react-dom": "19.2.2", "vite": "7.1.12"}
+}

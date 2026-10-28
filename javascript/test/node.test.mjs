@@ -1,0 +1,30 @@
+// Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {createClient} from '../src/index.mjs';
+const yl = await createClient();
+test('native typed values preserve int64, temporal precision, and safe keys', () => {
+  assert.equal(yl.backend, 'node-api');
+  const doc = new yl.Document({integer: 9223372036854775807n, float: 1, value: 'Hello 🌍', stamp: new yl.TemporalValue('datetime-offset', '2026-10-28T12:34:56.123456789Z')});
+  const restored = yl.loads(yl.dumps(doc));
+  assert.equal(restored.data.integer, 9223372036854775807n); assert.equal(restored.data.float, 1);
+  assert.equal(restored.data.stamp.text, doc.data.stamp.text);
+  const malicious = yl.loads("_ylspec={version='0.1',profile='core.data',profile_version='0.1'}\n[data]\n'__proto__'={polluted=true}");
+  assert.equal(Object.getPrototypeOf(malicious.data), null); assert.equal({}.polluted, undefined);
+});
+test('frame offsets and bounded reads', async () => {
+  const frame = yl.pack(new yl.Document({name: 'embedded'})); const host = new Uint8Array(frame.length + 9); host.set(frame, 7);
+  assert.equal(yl.unpack(host, 7).data.name, 'embedded');
+  const reads = []; const doc = await yl.readAt((position, size) => {reads.push([position, size]); return host.slice(Number(position), Number(position) + size);}, 7n, BigInt(frame.length));
+  assert.equal(doc.data.name, 'embedded'); assert.deepEqual(reads, [[7n, 32], [39n, frame.length - 32]]);
+  for (let i = 0; i < frame.length; i++) assert.throws(() => yl.unpack(frame.slice(0, i)));
+});
+test('errors, profiles, cyclic inputs, and CommonJS', async () => {
+  assert.throws(() => yl.loads('invalid'), yl.YLSpecError);
+  const doc = new yl.Document({}, {profile: 'xyz.example', profileVersion: '1'});
+  assert.throws(() => yl.validate(doc), /Unsupported profile/);
+  yl.validate(doc, {validators: new Map([['xyz.example@1', () => true]])});
+  const cycle = {}; cycle.self = cycle; assert.throws(() => yl.dumps(new yl.Document(cycle)), /Cyclic/);
+  const cjs = createRequire(import.meta.url)('../src/index.cjs'); assert.equal((await cjs.createClient()).backend, 'node-api');
+});
