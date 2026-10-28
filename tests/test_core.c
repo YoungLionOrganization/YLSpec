@@ -102,6 +102,30 @@ int main(void) {
                  yl_string("1", 1), &e) == YL_OK);
     CHECK(yl_validate(d, NULL, &e) == YL_UNSUPPORTED);
     CHECK(yl_validate(d, &registry, &e) == YL_OK && count == 1);
+    {
+        const char *features[] = {NULL};
+        yl_value *required = yl_new(YL_ARRAY);
+        CHECK(required && yl_append(required, yl_string("xyz.feature", 11), &e) == YL_OK);
+        CHECK(yl_set((yl_value *)yl_get(yl_root(d), "_ylspec", 7), "requires", 8, required, &e) ==
+              YL_OK);
+        registry.features = features;
+        registry.feature_count = 1;
+        CHECK(yl_validate(d, &registry, &e) == YL_UNSUPPORTED);
+    }
+    {
+        yl_document *edited = NULL;
+        yl_limits shallow = yl_default_limits();
+        yl_value *nested = yl_new(YL_ARRAY);
+        const char minimal[] =
+            "_ylspec={version='0.1',profile='core.data',profile_version='0.1'}\ndata={}";
+        shallow.max_depth = 2;
+        CHECK(yl_parse(minimal, strlen(minimal), &shallow, &edited, &e) == YL_OK);
+        CHECK(nested && yl_append(nested, yl_integer(1), &e) == YL_OK);
+        CHECK(yl_set((yl_value *)yl_get(yl_root(edited), "data", 4), "nested", 6, nested, &e) ==
+              YL_OK);
+        CHECK(yl_validate(edited, NULL, &e) == YL_LIMIT);
+        yl_document_free(edited);
+    }
     s = yl_append((yl_value *)data, yl_root_mutable(d), &e);
     CHECK(s == YL_INVALID);
     free(carrier);

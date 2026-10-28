@@ -379,7 +379,8 @@ static const yl_value *get(const yl_value *v, const char *k) {
     return yl_get(v, k, strlen(k));
 }
 static int equal_text(const yl_value *v, const char *s) {
-    return v && v->type == YL_STRING && v->length == strlen(s) && !memcmp(v->text, s, v->length);
+    return s && v && v->type == YL_STRING && v->length == strlen(s) &&
+           !memcmp(v->text, s, v->length);
 }
 static yl_status structure(const yl_value *r, yl_error *e) {
     const yl_value *m, *v, *x;
@@ -609,7 +610,9 @@ yl_status yl_validate(const yl_document *d, const yl_registry *registry, yl_erro
     yl_status s;
     if (!d)
         return fail(e, YL_INVALID, "Expected document");
-    s = structure(d->root, e);
+    s = check_tree(d->root, 0, d->limits.max_depth, e);
+    if (!s)
+        s = structure(d->root, e);
     if (s)
         return s;
     if (registry && ((registry->count && !registry->profiles) ||
