@@ -33,6 +33,6 @@
       }
     }
   },
-  "scripts": {"test": "node --test test/unit.test.cjs", "test:integration": "node test/run.cjs", "package": "vsce package --no-dependencies --out ../../dist/editor/ylspec-0.1.1.vsix"},
+  "scripts": {"test": "node --test test/unit.test.cjs", "test:integration": "node test/run.cjs", "package": "node tools/package.cjs"},
   "devDependencies": {"@vscode/vsce": "4.1.0", "@vscode/test-electron": "3.1.0", "vscode-textmate": "9.3.2", "vscode-oniguruma": "2.0.1"}
 }
