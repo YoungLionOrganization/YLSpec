@@ -28,7 +28,7 @@ jobs:
           python scripts/check_docs.py
           python scripts/release.py metadata
           ruff check python scripts tests examples
-          python -m pytest tests/test_release.py -q
+          python -m pytest tests/test_release.py tests/test_registry.py -q
       - name: Render Mermaid diagram
         run: |
           mkdir -p build/docs

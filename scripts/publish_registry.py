@@ -8,14 +8,50 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import tarfile
 import tempfile
 import time
 import urllib.parse
 import urllib.request
 import uuid
 import zipfile
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def validate_asset(kind, path, version):
+    """Reject a checksummed asset built for another namespace or publisher."""
+    identities = json.loads((ROOT / "release/registries.json").read_text())
+    if kind == "npm":
+        with tarfile.open(path, "r:gz") as archive:
+            metadata = json.load(archive.extractfile("package/package.json"))
+        if metadata.get("name") != identities["npm_package"] or metadata.get("version") != version:
+            raise ValueError("npm artifact name or version does not match the configured registry identity")
+    elif kind == "vscode":
+        with zipfile.ZipFile(path) as archive:
+            metadata = json.loads(archive.read("extension/package.json"))
+        if metadata.get("publisher") != identities["vscode_publisher"] or metadata.get("name") != identities["vscode_extension"] or metadata.get("version") != version:
+            raise ValueError("VSIX publisher, extension name, or version does not match the configured registry identity")
+    elif kind == "maven":
+        group = identities["maven_group"]
+        expected = set(identities["maven_artifacts"])
+        found = set()
+        ns = {"m": "http://maven.apache.org/POM/4.0.0"}
+        with zipfile.ZipFile(path) as archive:
+            for name in archive.namelist():
+                if not name.endswith(".pom"):
+                    continue
+                pom = ElementTree.fromstring(archive.read(name))
+                artifact = pom.findtext("m:artifactId", namespaces=ns)
+                if pom.findtext("m:groupId", namespaces=ns) != group or pom.findtext("m:version", namespaces=ns) != version or artifact not in expected:
+                    raise ValueError("Maven POM coordinates do not match the configured registry identity")
+                canonical = f"{group.replace('.', '/')}/{artifact}/{version}/{artifact}-{version}.pom"
+                if name != canonical or artifact in found:
+                    raise ValueError("Unexpected or duplicate Maven POM path")
+                found.add(artifact)
+        if found != expected:
+            raise ValueError("Maven bundle is missing required publications")
 
 
 def prepare(kind):
@@ -36,6 +72,7 @@ def prepare(kind):
         actual = hashlib.file_digest(stream, "sha256").hexdigest()
     if checksums.get(filename) != actual:
         raise ValueError("Release asset SHA-256 mismatch")
+    validate_asset(kind, destination / filename, version)
     with open(os.environ["GITHUB_ENV"], "a") as environment:
         environment.write(f"REGISTRY_VERSION={version}\nREGISTRY_ASSET={destination / filename}\n")
 

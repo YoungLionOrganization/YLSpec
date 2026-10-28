@@ -20,7 +20,7 @@ def run_draft(tmp_path, snapshot, *, ref_exists=True, release_exists=True):
     def gh(*args):
         nonlocal release_exists
         calls.append(args)
-        if args[:2] == ("api", "repos/owner/project/git/ref/tags/v0.1.1"):
+        if args[:2] == ("api", "repos/owner/project/git/ref/tags/v" + release.metadata()["version"]):
             if not ref_exists:
                 raise subprocess.CalledProcessError(1, args)
             return json.dumps({"object": {"type": "commit", "sha": sha}})
