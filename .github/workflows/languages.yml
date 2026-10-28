@@ -165,7 +165,7 @@ jobs:
         run: python scripts/collect_bindings.py
       - name: Build JVM publications and npm tarball
         run: |
-          gradle -p jvm publishAllPublicationsToStagingRepository --no-daemon
+          gradle -p jvm publishAllPublicationsToStagingRepository :java:smokeTest :kotlin:smokeTest --no-daemon
           python scripts/bindings.py package
           mkdir -p build/npm-consumer
           cd build/npm-consumer

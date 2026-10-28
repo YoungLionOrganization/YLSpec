@@ -95,7 +95,7 @@ def package_languages():
     destination.mkdir(parents=True, exist_ok=True)
     run("npm", "pack", "--ignore-scripts", "--pack-destination", destination, cwd=ROOT / "javascript")
     repository = ROOT / "jvm/build/maven-repository"
-    selected = [p for p in repository.rglob("*") if p.is_file() and p.parent.name == version and p.suffix in {".pom", ".jar", ".aar"}]
+    selected = [p for p in repository.rglob("*") if p.is_file() and p.parent.name == version and p.suffix in {".pom", ".jar", ".aar", ".module"}]
     for artifact in ("ylspec", "ylspec-kotlin", "ylspec-natives", "ylspec-android"):
         if not any(p.name == f"{artifact}-{version}.pom" for p in selected):
             raise ValueError(f"Missing Maven publication: {artifact}")
