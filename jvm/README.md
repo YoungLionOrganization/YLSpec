@@ -3,7 +3,7 @@
 Copyright 2026 Cavanşir Qurbanzadə. Apache-2.0.
 
 Both languages call the original C reference implementation through JNI. Java
-bytecode targets Java 8; CI uses JDK 17 and 21. Android supports API 26 and newer.
+bytecode targets Java 8; CI executes it on JDK 17. Android supports API 26 and newer.
 No native handles are retained by Document objects: each operation owns and frees
 its temporary C tree before returning.
 

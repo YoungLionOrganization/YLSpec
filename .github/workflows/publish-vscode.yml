@@ -1,0 +1,36 @@
+# Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
+name: Publish VS Code extension
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Published GitHub Release version; empty uses release/release.json'
+        required: false
+        type: string
+permissions: {contents: read}
+concurrency: {group: ylspec-vscode-publish, cancel-in-progress: false}
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with: {python-version: '3.13'}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with: {node-version: '24'}
+      - name: Require main and configured publisher credential
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          test "$GITHUB_REF" = refs/heads/main
+          test -n "$VSCE_PAT" || { echo '::error::Configure the Marketplace publisher and VSCE_PAT repository secret.'; exit 1; }
+      - name: Download and verify the published VSIX
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: python scripts/publish_registry.py prepare-vscode
+      - name: Publish the verified VSIX
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx --yes --package @vscode/vsce@4.1.0 vsce publish --packagePath "$REGISTRY_ASSET"

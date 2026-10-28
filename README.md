@@ -5,6 +5,9 @@
 [![Format: 0.1](https://img.shields.io/badge/format-0.1-orange.svg)](docs/specification.md)
 [![Python: 3.11–3.15](https://img.shields.io/badge/Python-3.11%E2%80%933.15-3776AB.svg)](docs/compatibility.md)
 [![C: C11](https://img.shields.io/badge/C-C11-555555.svg)](docs/c-api.md)
+[![JavaScript and TypeScript](https://img.shields.io/badge/JavaScript%20%2F%20TypeScript-Node--API%20%2B%20WASM-3178C6)](javascript/README.md)
+[![JVM and Android](https://img.shields.io/badge/Java%20%2F%20Kotlin-JVM%20%2B%20Android-7F52FF)](jvm/README.md)
+[![VS Code](https://img.shields.io/badge/VS%20Code-.ylspec-007ACC)](editors/vscode/README.md)
 [![Platforms](https://img.shields.io/badge/platforms-Linux%20%7C%20macOS%20%7C%20Windows-555555.svg)](docs/compatibility.md)
 
 **Portable metadata documents that work on their own and inside other file formats.**
@@ -12,12 +15,17 @@
 YLSpec defines a versioned document envelope around TOML 1.1 and an optional,
 length-delimited binary frame for embedding that document into another file.
 The reference implementation is written in C11. Its Python package uses the same
-C core through a native CPython extension.
+C core through a native CPython extension. JavaScript and TypeScript use Node-API
+on Node.js and WebAssembly in browsers and React applications. Java and Kotlin
+use JNI on desktop JVMs and Android. A VS Code extension brings the same parser
+to `.ylspec` editing.
 
-**Status:** `0.1.0`, experimental. The specification and APIs may change before
+**Status:** `0.1.1`, experimental. The specification and APIs may change before
 1.0. Review the [compatibility policy](docs/compatibility.md) before depending on
 an experimental version. A release's support claims are backed by its linked
-GitHub Actions run. Private-repository status badges may require GitHub access.
+GitHub Actions run. Package-registry publication requires the account setup
+described in the [registry guide](docs/registries.md); release assets can be used
+independently of those uploads.
 
 ## Why YLSpec?
 
@@ -50,6 +58,10 @@ flowchart LR
     Core --> Values["Typed document values"]
     Values --> Profile["Explicit profile validation"]
     Core --> Python["Native Python API"]
+    Core --> Node["Node-API: JavaScript and TypeScript"]
+    Core --> WASM["WebAssembly: browser and React"]
+    Core --> JNI["JNI: Java, Kotlin, and Android"]
+    WASM --> Editor["VS Code language tools"]
     Core --> CLI["Inspection CLI"]
 ```
 
@@ -80,6 +92,35 @@ target_link_libraries(my_application PRIVATE YLSpec::ylspec)
 ```
 
 See [building](docs/building.md) for source builds and supported toolchains.
+
+### Other language packages
+
+| Consumer | Distribution | Integration guide |
+|---|---|---|
+| JavaScript / TypeScript / Node.js | `@younglionorganization/ylspec`, native Node-API | [JavaScript API](javascript/README.md) |
+| Browser / React | The same npm package, bundled C WebAssembly | [Browser initialization](javascript/README.md#browser-and-react) |
+| Java / Kotlin desktop | `io.github.younglionorganization:ylspec` and `ylspec-kotlin` | [JVM guide](jvm/README.md) |
+| Android | Common Java/Kotlin API plus `ylspec-android` JNI AAR | [Android dependencies](jvm/README.md#android) |
+| VS Code | `ylspec-0.1.1.vsix`; language tools using bundled WebAssembly | [Editor guide](docs/vscode.md) |
+
+These names describe the built distributions. npm, Central, and Marketplace
+listings become available after their separate publishing workflows succeed.
+Until then, use the checksummed tarball, Maven-layout ZIP, or VSIX from the
+GitHub Release. No registry availability badge is shown before publication.
+
+```javascript
+import {createClient} from '@younglionorganization/ylspec';
+const yl = await createClient();
+const document = new yl.Document({name: 'Example', count: 42n});
+const restored = yl.unpack(yl.pack(document));
+console.assert(restored.data.count === 42n);
+```
+
+Integer values are `bigint` in JavaScript and `Long` in Java/Kotlin. Exact
+temporal values retain their original fractional precision across adapters.
+The [type mapping](docs/compatibility.md#language-type-mapping) explains conversion
+boundaries. Browser initialization is asynchronous; once initialized, in-memory
+parsing and framing use the same synchronous C implementation.
 
 ## Document example
 
@@ -196,11 +237,19 @@ bounded fuzzing, executes documentation examples, and renders Mermaid diagrams.
 Benchmark reports record the workload and environment without asserting an
 unmeasured speed threshold.
 
+Language verification executes Node-API and JNI on the target systems, tests
+TypeScript ESM/CommonJS consumers, launches React in Chromium, builds four
+Android ABIs, executes JNI on an API 26 emulator, and tests a real VS Code
+Extension Host before packaging the VSIX.
+
 The manually dispatched publish workflow rebuilds and verifies one commit,
 creates a draft release, attaches checksummed assets, publishes the same Python
 distributions to PyPI using the `PYPI_API_TOKEN` GitHub Actions secret, and then
 publishes the GitHub Release.
 Read [publishing](docs/publishing.md) before the first release.
+Separate npm, Maven Central, and VS Code workflows consume the public release's
+checksummed artifacts. See [registry setup](docs/registries.md) for exact secret
+names, account ownership, and upload steps.
 
 ## Documentation map
 
@@ -211,10 +260,14 @@ Read [publishing](docs/publishing.md) before the first release.
 | [Profiles and extensions](docs/profiles.md) | Application developers |
 | [C API and ownership](docs/c-api.md) | C integrators |
 | [Python API and types](docs/python-api.md) | Python integrators |
+| [JavaScript, TypeScript, browser, and React](javascript/README.md) | Web and Node.js developers |
+| [Java, Kotlin, and Android](jvm/README.md) | JVM and Android developers |
+| [VS Code integration](docs/vscode.md) | Editor users and extension maintainers |
 | [CLI](docs/cli.md) | Users inspecting documents |
 | [Building](docs/building.md) | Native-library consumers |
 | [Compatibility](docs/compatibility.md) | Maintainers and adopters |
 | [Publishing](docs/publishing.md) | Release maintainers |
+| [Registry accounts and secrets](docs/registries.md) | Package publishers |
 
 ## License and authorship
 

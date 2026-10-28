@@ -4,7 +4,7 @@
 
 | Version | Initial value | Meaning |
 |---|---|---|
-| Library release | `0.1.0` | C/Python implementation and tools |
+| Library release | `0.1.1` | C core, language adapters, and tools |
 | Document format | `0.1` | Envelope and document semantics |
 | Embedding frame | major 0, minor 1 | Binary framing contract |
 | Generic profile | `core.data` / `0.1` | Unconstrained data-table profile |
@@ -26,7 +26,43 @@ does not change the YLSpec document version.
 The native Linux archives use the GitHub Ubuntu 24.04 toolchain; they do not
 claim the older glibc baseline of manylinux wheels. ARM wheels run on native ARM
 GitHub runners. Standard CPython 3.11–3.15 is tested; PyPy, free-threaded Python,
-Windows ARM64/32-bit, mobile, and WebAssembly are outside the initial targets.
+Windows ARM64/32-bit are outside the initial desktop targets. Android JNI and
+browser WebAssembly have separate adapters and verification; they are not
+Python wheel targets.
+
+## Additional language targets
+
+| Adapter | Targets and baseline |
+|---|---|
+| Node-API | Node.js 20+; Linux x64/ARM64 GNU and musl, Windows x64, macOS x64/ARM64 |
+| Node GNU binaries | Built on manylinux 2.28 images; separate from Ubuntu-built C archives |
+| Browser WebAssembly | Modern browsers with WebAssembly, TextEncoder/TextDecoder, and BigInt; Chromium/React exercised in CI |
+| JVM JNI | Java 8 bytecode; JDK 17 executes Java and Kotlin verification |
+| Android JNI | API 26+; armeabi-v7a, arm64-v8a, x86, x86_64; x86_64 emulator runtime verification |
+| VS Code | Desktop or remote Node-enabled extension host, VS Code 1.95+; bundled WebAssembly |
+
+The npm package has no runtime npm dependencies or install-time binary downloads.
+The JVM desktop loader extracts a packaged JNI resource; Android loads the
+separately compiled AAR library. Browser and editor adapters package the C core
+as WebAssembly. Their common internal value transport is an implementation
+detail, not a new public file format or host-container specification.
+
+### Language type mapping
+
+| TOML / YLSpec | Python | JavaScript / TypeScript | Java / Kotlin |
+|---|---|---|---|
+| Integer | `int` within signed 64-bit range | `bigint`; `number` inputs are floats | `Long`; smaller integer input wrappers accepted |
+| Float | `float` | `number` | `Double`; Float input accepted |
+| Boolean | `bool` | `boolean` | `Boolean` |
+| String | `str` | `string` | `String` |
+| Array | `list` | Array | List |
+| Table | `dict` | Own properties on a plain or null-prototype object | String-key Map |
+| Temporal | `TemporalValue(kind, text)` | `TemporalValue(kind, text)` | `TemporalValue(kind, text)` |
+
+Standard date/time objects may be accepted as inputs; no adapter silently lowers
+the precision of a parsed temporal literal. Null values and cyclic containers
+are not TOML values. Serialization preserves value meaning and may change
+spelling, comments, whitespace, and layout.
 
 ## Resource and parser limits
 

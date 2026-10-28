@@ -27,6 +27,18 @@
     "tag": "v4.3.4",
     "sha": "b9e566a2b284570af229f6c2a33673410d0389a3"
   },
+  "actions/setup-java": {
+    "tag": "v6.1.0",
+    "sha": "b843ebf9b913146b38da2eaa7aeddf76074ae1ad"
+  },
+  "gradle/actions/setup-gradle": {
+    "tag": "v6.4.1",
+    "sha": "8da46b539cd8fe6ab27ca75128919a18d757604c"
+  },
+  "reactivecircus/android-emulator-runner": {
+    "tag": "v2",
+    "sha": "4c44018e59b437e86cdfc41da381398f93ed8808"
+  },
   "pypa/gh-action-pypi-publish": {
     "tag": "release/v1",
     "sha": "7245906fb61fa33a13554f9d5fb856fe61758086"

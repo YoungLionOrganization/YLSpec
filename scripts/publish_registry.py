@@ -26,7 +26,7 @@ def prepare(kind):
     release = json.loads(subprocess.check_output(["gh", "release", "view", "v" + version, "--repo", repo, "--json", "isDraft"]))
     if release["isDraft"]:
         raise ValueError("Registry publication requires a published GitHub Release")
-    filename = f"younglionorganization-ylspec-{version}.tgz" if kind == "npm" else f"ylspec-jvm-{version}.zip"
+    filename = {"npm": f"younglionorganization-ylspec-{version}.tgz", "maven": f"ylspec-jvm-{version}.zip", "vscode": f"ylspec-{version}.vsix"}[kind]
     destination = ROOT / "dist/registry"
     destination.mkdir(parents=True, exist_ok=True)
     for pattern in (filename, "SHA256SUMS"):
@@ -96,9 +96,9 @@ def central():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["prepare-npm", "prepare-maven", "central"])
+    parser.add_argument("command", choices=["prepare-npm", "prepare-maven", "prepare-vscode", "central"])
     args = parser.parse_args()
     if args.command == "central":
         central()
     else:
-        prepare("npm" if args.command == "prepare-npm" else "maven")
+        prepare(args.command.removeprefix("prepare-"))

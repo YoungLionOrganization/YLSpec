@@ -54,9 +54,27 @@ vendored parser, build files, and license notices.
 | `YLSPEC_SANITIZE=ON` | ASan/UBSan checks with a supported compiler |
 | `YLSPEC_FUZZ=ON` | Clang/libFuzzer text and frame entry point |
 | `YLSPEC_BUILD_PYTHON=ON` | Limited-API CPython extension |
+| `YLSPEC_BUILD_NODE=ON` | Node-API addon; requires Node headers and the Windows Node import library where applicable |
+| `YLSPEC_BUILD_JNI=ON` | JNI shared library; host JDK headers or the Android NDK toolchain |
+| `YLSPEC_BUILD_WASM=ON` | Emscripten WebAssembly module and ES module loader |
 
 The reusable verification workflow builds and tests each native target, tests
 minimum-ABI wheels across supported CPython versions, checks decoding through
 `toml-test` v2.2.0, renders documentation diagrams, checks source notices, and
 uploads benchmark information. Release publishing calls the same workflow so
 it cannot bypass these gates.
+
+## Additional adapters and editor packaging
+
+The reusable `languages.yml` workflow builds seven desktop Node/JNI targets,
+four Android JNI ABIs, and browser WebAssembly. It executes native consumer
+examples and packages the npm tarball and Maven-layout bundle. The Android AAR
+is exercised on an API 26 emulator. The editor job consumes that same run's
+WebAssembly, tests the TextMate grammar and actual VS Code Extension Host, and
+packages the VSIX. All become required release outputs.
+
+Sources and integration details are documented in the
+[JavaScript guide](../javascript/README.md), [JVM guide](../jvm/README.md), and
+[editor guide](vscode.md). The standard document/frame encoding is unchanged
+across these adapters. The private typed-value transport under `bindings/common`
+is not a serialization format for applications to persist or exchange.
