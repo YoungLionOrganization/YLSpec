@@ -19,7 +19,9 @@ directly into GitHub's secret field, never into source files, issues, or logs.
 | `MAVEN_CENTRAL_PASSWORD` | Maven Central | Password generated with that same user token |
 | `MAVEN_GPG_PRIVATE_KEY` | Maven Central | ASCII-armored OpenPGP secret key used to sign the artifacts |
 | `MAVEN_GPG_PASSPHRASE` | Maven Central | The signing key's passphrase; empty only for an unprotected key |
-| `VSCE_PAT` | Visual Studio Marketplace | Marketplace publishing credential accepted by `vsce` |
+
+Visual Studio Marketplace uses GitHub OIDC Trusted Publishing. No `VSCE_PAT`
+secret is required or read by its workflow.
 
 `GITHUB_TOKEN` is supplied automatically by GitHub Actions. It is not an npm,
 PyPI, or Central credential. Publishing workflows use secrets only in the jobs
@@ -56,7 +58,7 @@ Package: `@younglionorganization/ylspec`.
    publishing policy must allow granular tokens.
 5. Copy the generated token once and store it as `NPM_TOKEN` in GitHub.
 6. After the GitHub Release is public, run **Actions → Publish npm package → Run
-   workflow** on `main`. Enter `0.1.1`, or leave the version empty to use
+   workflow** on `main`. Enter `0.1.2`, or leave the version empty to use
    `release/release.json`.
 
 The workflow downloads the published release tarball and verifies its SHA-256
@@ -77,7 +79,7 @@ than a guarantee by this project. The current setup follows
 
 ## Maven Central: Java, Kotlin, and Android
 
-Namespace: `io.github.younglionorganization`.
+Namespace: `xyz.younglion`, corresponding to the `younglion.xyz` domain.
 
 | Artifact | Contents |
 |---|---|
@@ -87,10 +89,11 @@ Namespace: `io.github.younglionorganization`.
 | `ylspec-android` | JNI-only AAR for four Android ABIs, minimum API 26 |
 
 1. Sign in to [Central Publisher Portal](https://central.sonatype.com/).
-2. Add and verify the exact namespace `io.github.younglionorganization` using
-   the Portal's ownership procedure. Follow the
-   [namespace guide](https://central.sonatype.org/register/namespace/); organization
-   ownership may require verification beyond a personal GitHub login.
+2. Add the namespace `xyz.younglion` and verify `younglion.xyz` by adding the
+   Portal-provided verification value as a TXT record at that exact domain's
+   DNS root. Follow the
+   [namespace guide](https://central.sonatype.org/register/namespace/). Wait for
+   the namespace to become verified before uploading publications.
 3. Open [User tokens](https://central.sonatype.com/usertoken) and choose
    **Generate User Token**. Save the two generated credentials as
    `MAVEN_CENTRAL_USERNAME` and `MAVEN_CENTRAL_PASSWORD`. These are Portal token
@@ -127,20 +130,34 @@ including exclusion of desktop natives from Android applications.
 
 ## Visual Studio Marketplace
 
-Publisher identifier: `YoungLionOrganization`; extension name: `ylspec`.
+Publisher identifier: `ylvsmp` (YoungLion); extension name: `ylspec`.
+Full extension ID: `ylvsmp.ylspec`.
 
-1. Create that publisher at the
-   [Marketplace publisher management page](https://marketplace.visualstudio.com/manage).
-   Its identifier must match `editors/vscode/package.json`. If the identifier is
-   unavailable, update the manifest and documentation together before packaging.
-2. Follow the current
-   [VS Code publishing authentication guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension).
-   For PAT-based publishing, create an Azure DevOps credential with Marketplace
-   **Manage** permission and publisher access, then store it as `VSCE_PAT`.
-   Microsoft documents retirement of global Azure DevOps PATs on December 1,
-   2026; follow its Entra ID migration guidance when that applies to the account.
+1. Open the publisher's
+   [Trusted Publishing settings](https://marketplace.visualstudio.com/manage/publishers/ylvsmp/trustedpublishing).
+2. Configure an active GitHub Actions policy matching the following identity:
+
+   | Policy field | Value |
+   |---|---|
+   | Repository owner | `YoungLionOrganization` |
+   | Repository | `YLSpec` |
+   | Workflow | `publish-vscode.yml` |
+
 3. Run **Actions → Publish VS Code extension → Run workflow** on `main` after
-   the GitHub Release is public. The workflow uploads the checksummed VSIX.
+   the GitHub Release is public. Select version `0.1.2` or a later compatible
+   release. The workflow checks the asset SHA-256 and its embedded publisher,
+   extension name, and version before starting authentication.
+
+Only the publishing job has `id-token: write`. `vsce publish --oidc` exchanges
+the GitHub-issued workflow identity for a short-lived Marketplace credential.
+No stored Marketplace PAT is used, and OIDC failure does not fall back to a PAT.
+The registration authorizes `publish-vscode.yml` as its own dispatched workflow;
+changing the workflow identity requires a corresponding policy update. See
+[VSCE Trusted Publishing](https://github.com/microsoft/vscode-vsce#trusted-publishing).
+
+The old 0.1.1 VSIX used `YoungLionOrganization.ylspec` and cannot be uploaded as
+the new publisher's artifact. Publication metadata is immutable: use the newly
+built 0.1.2 VSIX instead of relabeling old release files.
 
 Marketplace account setup is separate from installing the VSIX. Users can
 already install a verified release VSIX through **Install from VSIX…**.
@@ -150,6 +167,9 @@ already install a verified release VSIX through **Install from VSIX…**.
 All assets use the library release version from `release/release.json`; document
 format and frame versions stay 0.1. Each registry workflow accepts an existing
 public GitHub Release version, and verifies the corresponding asset digest.
+`release/registries.json` records npm, Maven, and Marketplace identities. Package
+metadata must match that configuration; older publisher/namespace bundles are
+rejected even if their release checksums are valid.
 Missing credentials, incomplete namespace setup, missing assets, or failed
 registry validation stop that upload. They do not convert an unverified build
 into a release. Registry versions are immutable; use a new patch version when

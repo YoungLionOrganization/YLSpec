@@ -10,6 +10,7 @@ and create workflow artifacts, not GitHub Releases or PyPI uploads.
 | `release/release.json` | Authoritative version, title, notes path, prerelease flag |
 | `release/notes/vVERSION.md` | Detailed English release notes |
 | `release/assets.json` | Required native targets, wheel families, asset names |
+| `release/registries.json` | npm package, Maven group/artifacts, and Marketplace publisher/name |
 
 CMake, Python package metadata, release scripts, and the Git tag derive their
 version from `release.json`. Update that source once and include its notes in the
@@ -59,8 +60,10 @@ flowchart TD
     Token --> Final["Publish GitHub Release"]
 ```
 
-The PyPI token is referenced only by the publishing job. No OIDC permission is
-requested; only release-management jobs receive `contents: write`. External
+The PyPI token is referenced only by its publishing job. The GitHub/PyPI workflow
+does not request OIDC permission; only release-management jobs receive
+`contents: write`. The separate Marketplace publishing job uses GitHub OIDC
+with `id-token: write` and the registered `ylvsmp` publisher policy. External
 actions are pinned to recorded immutable commits in `.github/action-pins.json`.
 
 ## Assets and provenance

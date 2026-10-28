@@ -63,4 +63,11 @@ The release assembly requires the VSIX and includes its SHA-256 in the build
 manifest and checksum file. See [registry publishing](registries.md) for a
 separate Marketplace upload of those verified bytes.
 
+The Marketplace publisher is `ylvsmp` and its active GitHub Trusted Publishing
+policy authorizes `YoungLionOrganization/YLSpec` and `publish-vscode.yml`.
+The workflow validates the embedded `ylvsmp.ylspec` identity, requests an OIDC
+token only in the upload job, and invokes VSCE with `--oidc`. It does not use a
+stored PAT. The earlier manual 0.1.1 VSIX had a different publisher identity;
+see [migration notes](../release/notes/v0.1.2.md) before switching installations.
+
 Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0.
