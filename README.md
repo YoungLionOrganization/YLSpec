@@ -3,6 +3,7 @@
 [![CI](https://github.com/YoungLionOrganization/YLSpec/actions/workflows/ci.yml/badge.svg)](https://github.com/YoungLionOrganization/YLSpec/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/ylspec)](https://pypi.org/project/ylspec/)
 [![PyPI distributions](https://img.shields.io/pypi/format/ylspec)](https://pypi.org/project/ylspec/#files)
+[![npm version](https://img.shields.io/npm/v/%40younglionorganization%2Fylspec)](https://www.npmjs.com/package/@younglionorganization/ylspec)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Format: 0.1](https://img.shields.io/badge/format-0.1-orange.svg)](docs/specification.md)
 [![Python: 3.11–3.15](https://img.shields.io/badge/Python-3.11%E2%80%933.15-3776AB.svg)](docs/compatibility.md)
@@ -106,10 +107,12 @@ See [building](docs/building.md) for source builds and supported toolchains.
 | Android | Common Java/Kotlin API plus `ylspec-android` JNI AAR | [Android dependencies](jvm/README.md#android) |
 | VS Code | `ylvsmp.ylspec` / `ylspec-0.1.2.vsix`; language tools using bundled WebAssembly | [Editor guide](docs/vscode.md) |
 
-These names describe the built distributions. npm, Central, and Marketplace
-listings become available after their separate publishing workflows succeed.
-Until then, use the checksummed tarball, Maven-layout ZIP, or VSIX from the
-GitHub Release. No registry availability badge is shown before publication.
+The JavaScript package is published on
+[npm](https://www.npmjs.com/package/@younglionorganization/ylspec). Central
+availability requires namespace verification and a successful upload. Marketplace
+availability also depends on its post-upload verification. Checksummed tarballs,
+the Maven-layout ZIP, and the VSIX are available from GitHub Releases independently
+of registry verification. Registry badges reference actual published metadata.
 
 ```javascript
 import {createClient} from '@younglionorganization/ylspec';

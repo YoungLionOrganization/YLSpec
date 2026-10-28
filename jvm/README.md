@@ -9,7 +9,7 @@ its temporary C tree before returning.
 
 ## Desktop JVM
 
-Coordinates use the verified-domain namespace `xyz.younglion`:
+Coordinates use the domain-based namespace `xyz.younglion`:
 
 ```kotlin
 implementation("xyz.younglion:ylspec:0.1.2")
@@ -22,6 +22,14 @@ desktop JNI resources. Include that transitive dependency when assembling an
 application. The loader selects an OS/architecture resource, extracts it to an
 owned temporary directory, and loads it. Applications with controlled loading
 can supply an absolute `-Dylspec.native.path=/path/to/library` instead.
+
+Central installation requires completed namespace verification and a successful
+Central publication. While verification is pending, download
+`ylspec-jvm-0.1.2.zip` from the GitHub Release and extract it. The ZIP root is a
+Maven repository containing the same group/artifact coordinates, POMs, and JAR/AAR
+files. Add that extracted root to your build's Maven repository configuration;
+the dependency declarations above remain the same. Kotlin's standard-library
+dependency is resolved from Maven Central as usual.
 
 ```java
 import io.github.younglionorganization.ylspec.*;

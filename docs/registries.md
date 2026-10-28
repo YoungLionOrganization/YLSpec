@@ -125,6 +125,14 @@ layout bundle through the
 It records the deployment identifier and waits for the Portal's publication
 result. The namespace must be verified before uploading.
 
+If the Portal returns `Namespace 'xyz.younglion' is not allowed`, verify that
+the domain namespace is in the Verified state and that the token's account has
+publishing access. An accepted upload or a valid token alone does not grant
+namespace ownership. After verification finishes, rerun the Maven workflow
+against the same published GitHub version; rebuilding or relabeling the assets
+is unnecessary. Until Central accepts publication, the Maven-layout ZIP remains
+available as a registry-independent distribution.
+
 See the [Java/Kotlin/Android guide](../jvm/README.md) for dependency declarations,
 including exclusion of desktop natives from Android applications.
 
