@@ -1,6 +1,9 @@
 // Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
 'use strict';
 const assert = require('node:assert/strict');
+const {readFileSync} = require('node:fs');
+const path = require('node:path');
+const {pathToFileURL} = require('node:url');
 const vscode = require('vscode');
 const {template} = require('../src/metadata.cjs');
 exports.run = async () => {
@@ -28,7 +31,9 @@ exports.run = async () => {
     assert.ok(formatted.length > 0, 'Formatter must provide edits');
     const edits = new vscode.WorkspaceEdit(); edits.set(document.uri, formatted);
     assert.ok(await vscode.workspace.applyEdit(edits));
-    assert.match(document.getText(), /\[data\]/);
+    const {createClient} = await import(pathToFileURL(path.resolve(__dirname, '../engine/src/web.mjs')).href);
+    const yl = await createClient({wasmBinary: readFileSync(path.resolve(__dirname, '../engine/wasm/core.wasm'))});
+    assert.deepEqual(yl.loads(document.getText()).root, yl.loads(template).root);
     await api.validate(document); assert.equal(vscode.languages.getDiagnostics(document.uri).length, 0);
   } finally {await settings.update('format.enabled', undefined, vscode.ConfigurationTarget.Global);}
   console.log('YLSpec VS Code extension integration tests passed');
