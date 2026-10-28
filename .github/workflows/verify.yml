@@ -191,7 +191,20 @@ jobs:
           python-version: '3.13'
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
+          pattern: 'native-*'
           path: artifacts
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          pattern: 'wheels-*'
+          path: artifacts
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: source
+          path: artifacts/source
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: language-packages
+          path: artifacts/language-packages
       - name: Validate asset completeness and package metadata
         run: |
           python scripts/release.py stage --sha "$GITHUB_SHA"
