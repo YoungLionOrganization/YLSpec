@@ -87,6 +87,10 @@ Trusted Publishing for that feature. The SHA-256 manifest remains included.
 
 - Verification or missing assets: stop before release creation.
 - Existing tag at another commit: fail without moving it.
+- An empty unpublished draft without uploaded assets can be retargeted after
+  an automation correction. Drafts are read by their release ID; the by-tag REST
+  endpoint does not expose unpublished drafts. A nonempty draft cannot be
+  retargeted to a different source commit.
 - Existing asset with different bytes: fail without replacing it.
 - PyPI authentication failure: retain the GitHub draft for inspection; correct
   the repository secret or token permissions and rerun failed jobs to reuse the

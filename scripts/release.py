@@ -115,18 +115,31 @@ def draft(staged, sha):
         ref = None
     if ref and (ref["object"]["type"] != "commit" or ref["object"]["sha"] != sha):
         raise ValueError("Existing release tag does not point to this commit")
+    def read_release():
+        # The by-tag REST endpoint returns published releases, excluding drafts.
+        details = json.loads(gh("release", "view", tag, "--repo", repo, "--json", "apiUrl"))
+        return json.loads(gh("api", details["apiUrl"]))
+
     try:
-        release = json.loads(gh("api", f"repos/{repo}/releases/tags/{tag}"))
+        release = read_release()
     except subprocess.CalledProcessError:
         release = None
     if release and not release["draft"]:
         raise ValueError("Release is already public; create a new version")
+    if release and release["target_commitish"] != sha:
+        if release["assets"]:
+            raise ValueError("Existing draft assets belong to a different source commit")
+        # An empty unpublished draft can be recovered after an automation fix.
+        gh("release", "edit", tag, "--repo", repo, "--target", sha,
+           "--title", info["title"], "--notes-file", str(ROOT / info["notes"]))
+    if not ref:
+        gh("api", f"repos/{repo}/git/refs", "--method", "POST", "-f", f"ref=refs/tags/{tag}", "-f", f"sha={sha}")
     if not release:
-        args = ["release", "create", tag, "--repo", repo, "--target", sha, "--draft", "--title", info["title"], "--notes-file", str(ROOT / info["notes"])]
+        args = ["release", "create", tag, "--repo", repo, "--verify-tag", "--draft", "--title", info["title"], "--notes-file", str(ROOT / info["notes"])]
         if info["prerelease"]:
             args.append("--prerelease")
         gh(*args)
-        release = json.loads(gh("api", f"repos/{repo}/releases/tags/{tag}"))
+        release = read_release()
     assets = {x["name"]: x for x in release["assets"]}
     for path in sorted(staged.iterdir()):
         if path.name in assets:
