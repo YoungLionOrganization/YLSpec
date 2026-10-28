@@ -56,6 +56,11 @@ def main():
         package = json.loads((ROOT / relative).read_text(encoding="utf-8"))
         if package["version"] != info["version"] or package["license"] != "Apache-2.0" or package["author"]["name"] != "Cavanşir Qurbanzadə":
             errors.append(f"{relative}: release version or original-project metadata mismatch")
+    registries = json.loads((ROOT / "release/registries.json").read_text())
+    javascript = json.loads((ROOT / "javascript/package.json").read_text(encoding="utf-8"))
+    editor = json.loads((ROOT / "editors/vscode/package.json").read_text(encoding="utf-8"))
+    if javascript["name"] != registries["npm_package"] or editor["publisher"] != registries["vscode_publisher"] or editor["name"] != registries["vscode_extension"]:
+        errors.append("Registry identities differ from release/registries.json")
     if "@PIN" in "".join(p.read_text() for p in (ROOT / ".github/workflows").glob("*.yml")):
         errors.append("Unresolved action pin")
     if not (ROOT / "docs/architecture.mmd").is_file():

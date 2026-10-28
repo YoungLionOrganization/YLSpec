@@ -1,0 +1,7 @@
+{
+  "npm_package": "@younglionorganization/ylspec",
+  "maven_group": "xyz.younglion",
+  "maven_artifacts": ["ylspec", "ylspec-kotlin", "ylspec-natives", "ylspec-android"],
+  "vscode_publisher": "ylvsmp",
+  "vscode_extension": "ylspec"
+}

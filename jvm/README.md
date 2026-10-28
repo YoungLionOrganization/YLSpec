@@ -9,12 +9,12 @@ its temporary C tree before returning.
 
 ## Desktop JVM
 
-Coordinates use the namespace `io.github.younglionorganization`:
+Coordinates use the verified-domain namespace `xyz.younglion`:
 
 ```kotlin
-implementation("io.github.younglionorganization:ylspec:0.1.1")
+implementation("xyz.younglion:ylspec:0.1.2")
 // Optional idiomatic Kotlin extensions:
-implementation("io.github.younglionorganization:ylspec-kotlin:0.1.1")
+implementation("xyz.younglion:ylspec-kotlin:0.1.2")
 ```
 
 The Java artifact has a runtime dependency on `ylspec-natives`, which bundles
@@ -43,10 +43,10 @@ Use the common Java/Kotlin API and add the JNI-only Android AAR. Exclude desktop
 native resources from the Android dependency graph:
 
 ```kotlin
-implementation("io.github.younglionorganization:ylspec-kotlin:0.1.1") {
-    exclude(group = "io.github.younglionorganization", module = "ylspec-natives")
+implementation("xyz.younglion:ylspec-kotlin:0.1.2") {
+    exclude(group = "xyz.younglion", module = "ylspec-natives")
 }
-implementation("io.github.younglionorganization:ylspec-android:0.1.1@aar")
+implementation("xyz.younglion:ylspec-android:0.1.2@aar")
 ```
 
 The AAR supplies armeabi-v7a, arm64-v8a, x86, and x86_64 libraries and consumer
@@ -78,3 +78,14 @@ discovery, authenticity, and payload layout. Limits default to 16 MiB/depth 64.
 Publication requires namespace verification, a Central Portal user token, and
 an OpenPGP signing key. The repository's publishing guide describes the exact
 GitHub secret names and account setup. Builds and tests run on GitHub Actions.
+
+## Coordinate migration in 0.1.2
+
+Release 0.1.1's downloadable Maven bundle used the provisional group
+`io.github.younglionorganization`. New publications use `xyz.younglion`, derived
+from the `younglion.xyz` domain. The Java package remains
+`io.github.younglionorganization.ylspec`; existing imports and JNI entry points
+stay unchanged. Maven coordinates and Java package names are independent.
+The distribution namespace is recorded in `release/registries.json` and checked
+against each bundle's POM metadata before upload. Old release assets retain
+their original bytes and coordinates.

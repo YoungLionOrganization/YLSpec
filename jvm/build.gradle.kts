@@ -3,7 +3,8 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.plugins.signing.SigningExtension
 plugins { base; kotlin("jvm") version "2.4.20" apply false }
 version = Regex("\"version\":\\s*\"([^\"]+)\"").find(file("../release/release.json").readText())!!.groupValues[1]
-allprojects { group = "io.github.younglionorganization"; version = rootProject.version; repositories { mavenCentral() } }
+val publicationGroup = Regex("\"maven_group\":\\s*\"([^\"]+)\"").find(file("../release/registries.json").readText())!!.groupValues[1]
+allprojects { group = publicationGroup; version = rootProject.version; repositories { mavenCentral() } }
 subprojects {
     plugins.withId("java") {
         extensions.configure<JavaPluginExtension> {
