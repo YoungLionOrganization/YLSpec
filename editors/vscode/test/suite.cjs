@@ -25,7 +25,11 @@ exports.run = async () => {
   await settings.update('format.enabled', true, vscode.ConfigurationTarget.Global);
   try {
     const formatted = await vscode.commands.executeCommand('vscode.executeFormatDocumentProvider', document.uri, {tabSize: 2, insertSpaces: true});
-    assert.equal(formatted.length, 1); assert.match(formatted[0].newText, /\[data\]/);
+    assert.ok(formatted.length > 0, 'Formatter must provide edits');
+    const edits = new vscode.WorkspaceEdit(); edits.set(document.uri, formatted);
+    assert.ok(await vscode.workspace.applyEdit(edits));
+    assert.match(document.getText(), /\[data\]/);
+    await api.validate(document); assert.equal(vscode.languages.getDiagnostics(document.uri).length, 0);
   } finally {await settings.update('format.enabled', undefined, vscode.ConfigurationTarget.Global);}
   console.log('YLSpec VS Code extension integration tests passed');
 };
