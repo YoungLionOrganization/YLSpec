@@ -13,17 +13,21 @@ release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 
 
-def run_draft(tmp_path, snapshot, *, ref_exists=True):
+def run_draft(tmp_path, snapshot, *, ref_exists=True, release_exists=True):
     sha = "a" * 40
     calls = []
 
     def gh(*args):
+        nonlocal release_exists
         calls.append(args)
         if args[:2] == ("api", "repos/owner/project/git/ref/tags/v0.1.1"):
             if not ref_exists:
                 raise subprocess.CalledProcessError(1, args)
             return json.dumps({"object": {"type": "commit", "sha": sha}})
         if args[:2] == ("release", "view"):
+            if not release_exists:
+                release_exists = True
+                raise subprocess.CalledProcessError(1, args)
             return json.dumps({"apiUrl": "https://api.github.com/repos/owner/project/releases/123"})
         if args[:2] == ("api", "https://api.github.com/repos/owner/project/releases/123"):
             return json.dumps(snapshot)
@@ -38,6 +42,13 @@ def test_draft_is_read_by_id_instead_of_published_tag_endpoint(tmp_path):
     calls = run_draft(tmp_path, {"draft": True, "target_commitish": "a" * 40, "assets": []})
     assert any(args[:2] == ("release", "view") for args in calls)
     assert not any("/releases/tags/" in str(arg) for args in calls for arg in args)
+
+
+def test_new_draft_records_explicit_commit_for_safe_retry(tmp_path):
+    calls = run_draft(tmp_path, {"draft": True, "target_commitish": "a" * 40, "assets": []}, ref_exists=False, release_exists=False)
+    creation = next(args for args in calls if args[:2] == ("release", "create"))
+    assert "--verify-tag" in creation
+    assert creation[creation.index("--target") + 1] == "a" * 40
 
 
 def test_empty_unpublished_draft_can_recover_before_first_upload(tmp_path):

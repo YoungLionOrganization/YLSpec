@@ -135,7 +135,7 @@ def draft(staged, sha):
     if not ref:
         gh("api", f"repos/{repo}/git/refs", "--method", "POST", "-f", f"ref=refs/tags/{tag}", "-f", f"sha={sha}")
     if not release:
-        args = ["release", "create", tag, "--repo", repo, "--verify-tag", "--draft", "--title", info["title"], "--notes-file", str(ROOT / info["notes"])]
+        args = ["release", "create", tag, "--repo", repo, "--verify-tag", "--target", sha, "--draft", "--title", info["title"], "--notes-file", str(ROOT / info["notes"])]
         if info["prerelease"]:
             args.append("--prerelease")
         gh(*args)
