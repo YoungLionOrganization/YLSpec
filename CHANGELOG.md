@@ -7,6 +7,12 @@ JNI-backed Java and Kotlin APIs; Android API 26+ native AAR; shared typed bindin
 transport; corrected validation after mutation; and npm/Maven publication
 workflows. Document format 0.1 and the existing frame layout are unchanged.
 
+VS Code language tools add syntax coloring, snippets, metadata completion,
+hover documentation, worker-based C validation, and opt-in semantic formatting.
+The universal VSIX and its Marketplace upload workflow join the release assets.
+Callback readers reject invalid lengths before requesting document payloads;
+adapter tests cover multiple unaligned frames and header-only rejection.
+
 See the [patch release notes](release/notes/v0.1.1.md).
 
 ## 0.1.0

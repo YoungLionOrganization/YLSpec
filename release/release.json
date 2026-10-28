@@ -1,6 +1,6 @@
 {
   "version": "0.1.1",
-  "title": "YLSpec 0.1.1 — Native JavaScript, JVM, and Android bindings",
+  "title": "YLSpec 0.1.1 — Native language libraries and VS Code tooling",
   "notes": "release/notes/v0.1.1.md",
   "prerelease": false
 }
