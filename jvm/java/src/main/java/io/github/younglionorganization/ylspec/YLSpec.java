@@ -35,8 +35,8 @@ public final class YLSpec {
         if (info.getShort(8) != 0 || info.getShort(10) != 1 || info.getInt(12) != 32 || info.getInt(24) != 1 || info.getInt(28) != 0) throw new YLSpecException("Unsupported frame header", "unsupported", 0, 0, 0);
         long size = info.getLong(16); if (size < 0 || size > limits.maxDocumentBytes) throw new YLSpecException("Document byte limit exceeded", "limit", 0, 0, 0);
         if (size > available - 32) throw new YLSpecException("Truncated frame region", "frame", 0, 0, 0);
-        byte[] payload = reader.read(offset + 32, (int)size); if (payload == null || payload.length != size) throw new IOException("Short frame payload read");
         if (size > Integer.MAX_VALUE - 32) throw new IllegalArgumentException("Frame exceeds Java array limit");
+        byte[] payload = reader.read(offset + 32, (int)size); if (payload == null || payload.length != size) throw new IOException("Short frame payload read");
         byte[] frame = new byte[32 + (int)size]; System.arraycopy(header, 0, frame, 0, 32); System.arraycopy(payload, 0, frame, 32, payload.length); return unpack(frame, 0, limits);
     }
     /** Preserve position and serialize access to a RandomAccessFile during reading. */

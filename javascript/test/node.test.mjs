@@ -28,3 +28,17 @@ test('errors, profiles, cyclic inputs, and CommonJS', async () => {
   const cycle = {}; cycle.self = cycle; assert.throws(() => yl.dumps(new yl.Document(cycle)), /Cyclic/);
   const cjs = createRequire(import.meta.url)('../src/index.cjs'); assert.equal((await cjs.createClient()).backend, 'node-api');
 });
+
+test('multiple frames and rejected headers never read unrelated payloads', async () => {
+  const first = yl.pack(new yl.Document({name: 'first'})), second = yl.pack(new yl.Document({name: 'second'}));
+  const host = new Uint8Array(7 + first.length + second.length + 9); host.set(first, 7); host.set(second, 7 + first.length);
+  assert.equal(yl.unpack(host, 7).data.name, 'first'); assert.equal(yl.unpack(host, 7 + first.length).data.name, 'second');
+  for (const change of [header => {header[0] = 0;}, header => {header[28] = 1;}, header => {new DataView(header.buffer).setBigUint64(16, (1n << 64n) - 1n, true);}]) {
+    const header = first.slice(0, 32); change(header); let reads = 0;
+    await assert.rejects(yl.readAt((_offset, size) => {reads++; assert.equal(size, 32); return header;}, 0n, BigInt(first.length)), yl.YLSpecError);
+    assert.equal(reads, 1);
+  }
+  await assert.rejects(yl.readAt(() => new Uint8Array(0), (1n << 64n) - 16n, 32n), RangeError);
+  const limited = new yl.Document({nested: {value: true}}, {limits: {maxDepth: 2}});
+  assert.throws(() => yl.dumps(limited), /depth/i);
+});

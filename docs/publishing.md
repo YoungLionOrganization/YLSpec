@@ -13,7 +13,10 @@ and create workflow artifacts, not GitHub Releases or PyPI uploads.
 
 CMake, Python package metadata, release scripts, and the Git tag derive their
 version from `release.json`. Update that source once and include its notes in the
-same commit. Do not commit compiled outputs into `release/`.
+same commit. The npm and VS Code manifests are checked against the same version;
+update their public manifest fields in the release commit. The JVM publication
+version is read from that source by Gradle. Do not commit compiled outputs into
+`release/`.
 
 ## One-time PyPI API token setup
 
@@ -63,10 +66,17 @@ actions are pinned to recorded immutable commits in `.github/action-pins.json`.
 ## Assets and provenance
 
 The release contains five native `.tar.gz` packages, seven platform wheel
-families, one source distribution, `SHA256SUMS`, and `build-manifest.json`.
+families, one source distribution, the npm tarball, a Maven-layout ZIP and its
+individual artifacts, a universal VS Code VSIX, `SHA256SUMS`, and `build-manifest.json`.
 The manifest records the source commit, release version, and artifact hashes.
 The checksum file also covers the build manifest. Native archives contain both
 static and shared installations, each with notices and CMake exports.
+
+The release assembly downloads only distribution artifacts. Intermediate JNI
+build trees, emulator inputs, and verification reports are not republished as
+accidental release assets. The npm, Maven Central, and Marketplace workflows
+upload verified assets from a public GitHub Release; they do not rebuild them.
+Account and secret setup is documented in [registry publishing](registries.md).
 
 The pipeline verifies completeness before creating a draft. It does not take
 an unrelated branch's "latest successful build" and attach it to a new tag.
