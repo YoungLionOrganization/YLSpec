@@ -1,0 +1,5 @@
+{
+  "YLSpec document": {"prefix": "ylspec", "description": "Create a YLSpec 0.1 envelope with the generic data profile", "body": ["[_ylspec]", "version = \"0.1\"", "profile = \"core.data\"", "profile_version = \"0.1\"", "", "[data]", "name = \"${1:Example}\"", "$0"]},
+  "YLSpec extension": {"prefix": "ylextension", "description": "Add an explicitly namespaced extension table", "body": ["[extensions.\"${1:xyz.younglion.example}\"]", "${2:enabled} = ${3:true}", "$0"]},
+  "YLSpec manifest": {"prefix": "ylmanifest", "description": "Create generic component metadata; does not define a package or plugin host format", "body": ["[_ylspec]", "version = \"0.1\"", "profile = \"core.data\"", "profile_version = \"0.1\"", "", "[data]", "name = \"${1:component}\"", "version = \"${2:1.0.0}\"", "description = \"${3:Component description}\"", "$0"]}
+}

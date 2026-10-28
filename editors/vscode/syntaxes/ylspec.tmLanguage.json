@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "YLSpec",
+  "scopeName": "source.ylspec",
+  "patterns": [{"include": "#comment"}, {"include": "#table"}, {"include": "#key"}, {"include": "#value"}],
+  "repository": {
+    "comment": {"name": "comment.line.number-sign.ylspec", "begin": "#", "end": "$"},
+    "table": {"name": "meta.table.ylspec", "begin": "^\\s*(\\[\\[?)", "beginCaptures": {"1": {"name": "punctuation.definition.table.begin.ylspec"}}, "end": "(\\]\\]?)|$", "endCaptures": {"1": {"name": "punctuation.definition.table.end.ylspec"}}, "patterns": [{"include": "#strings"}, {"name": "support.type.ylspec", "match": "\\b(?:_ylspec|data|extensions)\\b"}, {"name": "entity.name.section.ylspec", "match": "[A-Za-z0-9_-]+"}, {"name": "punctuation.separator.dot.ylspec", "match": "\\."}]},
+    "key": {"name": "meta.key.ylspec", "begin": "^\\s*(?=[A-Za-z0-9_\\\"'-])", "end": "(=)|$", "endCaptures": {"1": {"name": "keyword.operator.assignment.ylspec"}}, "patterns": [{"include": "#strings"}, {"name": "variable.other.key.ylspec", "match": "[A-Za-z0-9_-]+"}, {"name": "punctuation.separator.dot.ylspec", "match": "\\."}, {"include": "#comment"}]},
+    "strings": {"patterns": [
+      {"name": "string.quoted.triple.double.ylspec", "begin": "\"\"\"", "end": "\"\"\"(?:\"{1,2})?", "patterns": [{"include": "#escape"}]},
+      {"name": "string.quoted.triple.single.ylspec", "begin": "'''", "end": "'''(?:'{1,2})?"},
+      {"name": "string.quoted.double.ylspec", "begin": "\"", "end": "\"|$", "patterns": [{"include": "#escape"}]},
+      {"name": "string.quoted.single.ylspec", "begin": "'", "end": "'|$"}
+    ]},
+    "escape": {"patterns": [{"name": "constant.character.escape.ylspec", "match": "\\\\(?:[btnfr\"\\\\e]|x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8}|\\s*$)"}, {"name": "invalid.illegal.escape.ylspec", "match": "\\\\."}]},
+    "value": {"patterns": [{"include": "#strings"}, {"include": "#comment"}, {"name": "constant.other.datetime.ylspec", "match": "(?<![\\w-])(?:[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt ][0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\\.[0-9]+)?)?(?:[Zz]|[+-][0-9]{2}:[0-9]{2})?)?|[0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\\.[0-9]+)?)?)(?![\\w-])"}, {"name": "constant.language.boolean.ylspec", "match": "\\b(?:true|false)\\b"}, {"name": "constant.numeric.ylspec", "match": "(?<![\\w-])[+-]?(?:0x[0-9A-Fa-f_]+|0o[0-7_]+|0b[01_]+|[0-9][0-9_]*(?:\\.[0-9_]+)?(?:[eE][+-]?[0-9_]+)?|inf|nan)(?![\\w-])"}, {"name": "punctuation.separator.ylspec", "match": "[,=]"}, {"name": "punctuation.section.collection.ylspec", "match": "[\\[\\]{}]"}]}
+  }
+}

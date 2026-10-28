@@ -26,3 +26,11 @@ jvm/natives/src/main/resources/natives/
 jvm/android/src/main/jni/
 *.node
 *.tgz
+*.vsix
+.vscode-test/
+editors/vscode/package-lock.json
+editors/vscode/engine/
+editors/vscode/LICENSE
+editors/vscode/NOTICE
+editors/vscode/THIRD_PARTY_NOTICES.md
+editors/vscode/images/icon.png

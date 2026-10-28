@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>YLSpec</title>
+  <rect width="128" height="128" rx="24" fill="#10243a"/>
+  <path d="M23 29h15l12 23 12-23h15L57 67v31H43V67z" fill="#f4b943"/>
+  <path d="M77 48h14v36h22v14H77z" fill="#f5f7fa"/>
+  <path d="M21 109h90" stroke="#46677e" stroke-width="3"/>
+</svg>

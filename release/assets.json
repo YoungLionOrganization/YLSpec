@@ -3,5 +3,5 @@
   "native_pattern": "ylspec-{version}-{target}.tar.gz",
   "required_wheel_platforms": ["win_amd64", "manylinux_x86_64", "manylinux_aarch64", "musllinux_x86_64", "musllinux_aarch64", "macosx_x86_64", "macosx_arm64"],
   "source_pattern": "ylspec-{version}.tar.gz",
-  "language_assets": ["younglionorganization-ylspec-{version}.tgz", "ylspec-jvm-{version}.zip", "ylspec-{version}.jar", "ylspec-kotlin-{version}.jar", "ylspec-natives-{version}.jar", "ylspec-android-{version}.aar"]
+  "language_assets": ["younglionorganization-ylspec-{version}.tgz", "ylspec-jvm-{version}.zip", "ylspec-{version}.jar", "ylspec-kotlin-{version}.jar", "ylspec-natives-{version}.jar", "ylspec-android-{version}.aar", "ylspec-{version}.vsix"]
 }

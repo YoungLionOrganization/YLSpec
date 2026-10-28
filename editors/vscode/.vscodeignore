@@ -1,0 +1,6 @@
+test/**
+node_modules/**
+package-lock.json
+.vscode/**
+**/*.map
+**/.DS_Store

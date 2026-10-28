@@ -42,7 +42,7 @@ def stage(source, destination, sha):
     info = metadata()
     expected = json.loads((ROOT / "release/assets.json").read_text())
     destination.mkdir(parents=True, exist_ok=True)
-    files = [p for pattern in ("*.whl", "*.tar.gz", "*.tgz", "*.jar", "*.aar", "*.pom", "*.module", "*.zip") for p in source.rglob(pattern)]
+    files = [p for pattern in ("*.whl", "*.tar.gz", "*.tgz", "*.jar", "*.aar", "*.pom", "*.module", "*.zip", "*.vsix") for p in source.rglob(pattern)]
     names = set()
     for path in files:
         if path.name in names:

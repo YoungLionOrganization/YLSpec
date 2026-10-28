@@ -1,0 +1,38 @@
+{
+  "name": "ylspec",
+  "displayName": "YLSpec",
+  "description": "YLSpec language support with C-backed validation, syntax highlighting, completions, and optional formatting",
+  "version": "0.1.1",
+  "publisher": "YoungLionOrganization",
+  "author": {"name": "Cavanşir Qurbanzadə", "email": "cavanshirpro@gmail.com"},
+  "license": "Apache-2.0",
+  "repository": {"type": "git", "url": "https://github.com/YoungLionOrganization/YLSpec.git", "directory": "editors/vscode"},
+  "homepage": "https://github.com/YoungLionOrganization/YLSpec/tree/main/editors/vscode",
+  "bugs": {"url": "https://github.com/YoungLionOrganization/YLSpec/issues"},
+  "engines": {"vscode": "^1.95.0"},
+  "categories": ["Programming Languages", "Formatters", "Snippets"],
+  "keywords": ["ylspec", "toml", "manifest", "configuration", "YoungLion"],
+  "icon": "images/icon.png",
+  "main": "./src/extension.cjs",
+  "activationEvents": ["onLanguage:ylspec"],
+  "extensionKind": ["workspace"],
+  "capabilities": {"untrustedWorkspaces": {"supported": true}, "virtualWorkspaces": {"supported": true}},
+  "contributes": {
+    "languages": [{"id": "ylspec", "aliases": ["YLSpec", "ylspec"], "extensions": [".ylspec"], "configuration": "./language-configuration.json"}],
+    "grammars": [{"language": "ylspec", "scopeName": "source.ylspec", "path": "./syntaxes/ylspec.tmLanguage.json"}],
+    "snippets": [{"language": "ylspec", "path": "./snippets/ylspec.json"}],
+    "commands": [{"command": "ylspec.validate", "title": "YLSpec: Validate Document", "enablement": "editorLangId == ylspec"}, {"command": "ylspec.newDocument", "title": "YLSpec: New Document"}],
+    "configuration": {
+      "title": "YLSpec",
+      "properties": {
+        "ylspec.validation.enabled": {"type": "boolean", "default": true, "description": "Validate YLSpec documents after edits and saves using the bundled C core."},
+        "ylspec.validation.delay": {"type": "integer", "default": 350, "minimum": 100, "maximum": 5000, "description": "Delay in milliseconds before validating an edited document."},
+        "ylspec.maxDocumentBytes": {"type": "integer", "default": 16777216, "minimum": 1024, "maximum": 67108864, "description": "Maximum UTF-8 document size sent to the validation worker."},
+        "ylspec.maxDepth": {"type": "integer", "default": 64, "minimum": 1, "maximum": 128, "description": "Maximum value depth, counting edges from the document root."},
+        "ylspec.format.enabled": {"type": "boolean", "default": false, "markdownDescription": "Enable semantic formatting through the C serializer. **Formatting removes comments and changes whitespace.** Disabled by default; enable only when that behavior is acceptable."}
+      }
+    }
+  },
+  "scripts": {"test": "node --test test/unit.test.cjs", "test:integration": "node test/run.cjs", "package": "vsce package --no-dependencies --out ../../dist/editor/ylspec-0.1.1.vsix"},
+  "devDependencies": {"@vscode/vsce": "4.1.0", "@vscode/test-electron": "3.1.0", "vscode-textmate": "9.3.2", "vscode-oniguruma": "2.0.1"}
+}

@@ -208,3 +208,29 @@ jobs:
             adb install -r jvm/android-smoke/build/outputs/apk/debug/ylspec-android-smoke-debug.apk
             adb shell am instrument -w io.github.younglionorganization.ylspec.smoke/.SmokeInstrumentation | tee build-android-result.txt
             grep 'YLSpec Android JNI tests passed' build-android-result.txt
+  editor:
+    name: VS Code language extension
+    needs: wasm
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with: {python-version: '3.13'}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with: {node-version: '24'}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with: {name: bindings-wasm, path: javascript/wasm}
+      - name: Assemble the bundled editor engine
+        run: |
+          python -m pip install 'cairosvg==2.8.2'
+          python scripts/prepare_editor.py
+      - name: Verify grammar and extension integration, then package VSIX
+        working-directory: editors/vscode
+        run: |
+          npm install --ignore-scripts
+          npm test
+          xvfb-run -a npm run test:integration
+          npm run package
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with: {name: editor-package, path: 'dist/editor/*.vsix', if-no-files-found: error}
