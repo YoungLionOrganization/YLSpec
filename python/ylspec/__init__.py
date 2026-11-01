@@ -55,6 +55,9 @@ class Limits:
     max_depth: int = 64
 
     def __post_init__(self):
+        if any(not isinstance(value, int) or isinstance(value, bool)
+               for value in (self.max_document_bytes, self.max_depth)):
+            raise TypeError("Limits must be integers, not booleans or fractional values")
         if not 0 < self.max_document_bytes <= (1 << 63) - 1 or not 0 < self.max_depth <= 128:
             raise ValueError("Limits must be positive; maximum supported depth is 128")
 
@@ -183,21 +186,36 @@ def dump(document: Document, path) -> None:
 
 
 def pack(document: Document) -> bytes:
+    if not isinstance(document, Document):
+        raise TypeError("Expected Document; use Document(data) to construct one")
     return _call(_native.encode, _encode(document.root), document.limits.max_document_bytes,
                  document.limits.max_depth, True)
 
 
+def _position(value, name):
+    # CPython's unsigned native argument conversion can otherwise wrap huge ints.
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise TypeError(name + " must be an integer")
+    if value < 0:
+        raise ValueError(name + " must be nonnegative")
+    if value > (1 << 64) - 1:
+        raise OverflowError(name + " exceeds the unsigned 64-bit range")
+    return value
+
+
 def unpack(buffer: bytes, offset: int = 0, *, limits: Limits = Limits()) -> Document:
-    if offset < 0:
-        raise ValueError("Offset must be nonnegative")
+    offset = _position(offset, "Offset")
     root, _ = _call(_native.unpack, buffer, offset, limits.max_document_bytes, limits.max_depth)
     return Document._from_root(root, limits)
 
 
 def read_at(file, offset: int = 0, *, available: int | None = None, limits: Limits = Limits()) -> Document:
     """Read a frame from a seekable binary file; restore the original position."""
-    if offset < 0:
-        raise ValueError("Offset must be nonnegative")
+    offset = _position(offset, "Offset")
+    if available is not None:
+        if isinstance(available, int) and not isinstance(available, bool) and available < 0:
+            raise FrameError("Invalid frame region", code="frame")
+        available = _position(available, "Available region")
     original = file.tell()
     try:
         if available is None:

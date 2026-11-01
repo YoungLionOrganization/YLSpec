@@ -345,6 +345,8 @@ def unpack(buffer: bytes, offset: int = 0, *, limits: Limits = ...) -> Document:
     """Decode one frame at a nonnegative byte offset in an available bytes object.
 
     Validates the header and declared text length before decoding the document.
+    Offsets must be integers (excluding bool) in the unsigned 64-bit range.
+    Negative offsets raise ValueError; oversized integers raise OverflowError.
     Prefix and trailing host bytes are allowed and are not interpreted. This
     function does not scan for magic or return every frame in a host buffer.
     Use the C API when a consumed-length output is needed.
@@ -362,6 +364,8 @@ def read_at(
 
     offset is an absolute byte position. available bounds the enclosing region
     starting there; when omitted, the adapter seeks to EOF to determine it.
+    Explicit offsets and region sizes must be integers, excluding bool, within
+    the unsigned 64-bit range. Invalid arguments fail before accessing the stream.
     A valid frame causes one 32-byte header read and one exact document read.
     Unrelated host payloads are neither read nor decompressed.
 

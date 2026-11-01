@@ -23,6 +23,44 @@ def test_installed_package_identity_and_distribution_metadata():
     assert "# YLSpec for Python" in info.get_payload()
 
 
+@pytest.mark.parametrize("field", ["max_document_bytes", "max_depth"])
+@pytest.mark.parametrize("value", [True, False, 1.5, "64"])
+def test_limits_reject_noninteger_configuration(field, value):
+    with pytest.raises(TypeError):
+        ylspec.Limits(**{field: value})
+
+
+@pytest.mark.parametrize("value,error", [(True, TypeError), (1.5, TypeError), ("0", TypeError),
+                                        (-1, ValueError), (1 << 64, OverflowError), ((1 << 64) + 7, OverflowError)])
+def test_offsets_cannot_wrap_into_valid_frames(value, error):
+    frame = ylspec.pack(ylspec.Document({"x": 1}))
+    with pytest.raises(error):
+        ylspec.unpack(frame, value)
+    stream = Tracked(frame)
+    stream.seek(3)
+    with pytest.raises(error):
+        ylspec.read_at(stream, value, available=len(frame))
+    assert stream.tell() == 3
+    assert stream.reads == []
+
+
+@pytest.mark.parametrize("value,error", [(True, TypeError), (1.5, TypeError), (-1, ylspec.FrameError),
+                                        (1 << 64, OverflowError)])
+def test_region_sizes_are_validated_before_stream_reads(value, error):
+    stream = Tracked(ylspec.pack(ylspec.Document()))
+    stream.seek(3)
+    with pytest.raises(error):
+        ylspec.read_at(stream, available=value)
+    assert stream.tell() == 3
+    assert stream.reads == []
+
+
+@pytest.mark.parametrize("writer", [ylspec.dumps, ylspec.pack])
+def test_serializers_reject_non_documents_consistently(writer):
+    with pytest.raises(TypeError, match="Expected Document"):
+        writer({"name": "example"})
+
+
 def test_installed_package_includes_documented_type_stubs():
     package = files("ylspec")
     for name in ("__init__.pyi", "_native.pyi", "py.typed"):
