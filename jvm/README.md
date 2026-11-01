@@ -23,8 +23,9 @@ application. The loader selects an OS/architecture resource, extracts it to an
 owned temporary directory, and loads it. Applications with controlled loading
 can supply an absolute `-Dylspec.native.path=/path/to/library` instead.
 
-Central installation requires completed namespace verification and a successful
-Central publication. While verification is pending, download
+The `xyz.younglion` namespace is verified; version 0.1.2 was published successfully
+to Maven Central. Each new version becomes available after its Central workflow
+succeeds. For offline installation or before a new registry upload completes, download
 `ylspec-jvm-0.1.3.zip` from the GitHub Release and extract it. The ZIP root is a
 Maven repository containing the same group/artifact coordinates, POMs, and JAR/AAR
 files. Add that extracted root to your build's Maven repository configuration;

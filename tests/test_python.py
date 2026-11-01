@@ -57,6 +57,18 @@ def test_region_sizes_are_validated_before_stream_reads(value, error):
     assert stream.reads == []
 
 
+def test_inferred_stream_region_cannot_wrap_and_restores_position():
+    class OversizedStream(Tracked):
+        def tell(self):
+            return (1 << 64) if super().tell() == len(self.getvalue()) else super().tell()
+    stream = OversizedStream(ylspec.pack(ylspec.Document()))
+    stream.seek(3)
+    with pytest.raises(OverflowError):
+        ylspec.read_at(stream)
+    assert stream.tell() == 3
+    assert stream.reads == []
+
+
 @pytest.mark.parametrize("writer", [ylspec.dumps, ylspec.pack])
 def test_serializers_reject_non_documents_consistently(writer):
     with pytest.raises(TypeError, match="Expected Document"):

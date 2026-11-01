@@ -108,9 +108,9 @@ See [building](docs/building.md) for source builds and supported toolchains.
 | VS Code | `ylvsmp.ylspec` / `ylspec-0.1.3.vsix`; language tools using bundled WebAssembly | [Editor guide](docs/vscode.md) |
 
 The JavaScript package is published on
-[npm](https://www.npmjs.com/package/@younglionorganization/ylspec). Central
-availability requires namespace verification and a successful upload. Marketplace
-availability also depends on its post-upload verification. Checksummed tarballs,
+[npm](https://www.npmjs.com/package/@younglionorganization/ylspec). The Maven namespace
+is verified and the VS Code extension is available on the Marketplace. Each new
+version becomes available after its registry workflow succeeds. Checksummed tarballs,
 the Maven-layout ZIP, and the VSIX are available from GitHub Releases independently
 of registry verification. Registry badges reference actual published metadata.
 

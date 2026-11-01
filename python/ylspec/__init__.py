@@ -223,6 +223,7 @@ def read_at(file, offset: int = 0, *, available: int | None = None, limits: Limi
             available = file.tell() - offset
         if available < 0:
             raise FrameError("Invalid frame region", code="frame")
+        available = _position(available, "Available region")
         def reader(position, size):
             file.seek(position)
             return file.read(size)
