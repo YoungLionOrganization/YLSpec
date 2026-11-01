@@ -6,13 +6,13 @@ build-backend = "scikit_build_core.build"
 [project]
 name = "ylspec"
 dynamic = ["version"]
-description = "Portable, standalone and embeddable metadata documents backed by a C core"
-readme = "README.md"
+description = "Typed, native C-backed TOML 1.1 documents for standalone configuration and embedded metadata"
+readme = {file = "python/README.md", content-type = "text/markdown"}
 requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "vendor/tomlc17/LICENSE"]
 authors = [{name = "Cavanşir Qurbanzadə", email = "cavanshirpro@gmail.com"}]
-maintainers = [{name = "Cavanşir Qurbanzadə", email = "cavanshirpro@gmail.com"}]
+maintainers = [{name = "Cavanşir Qurbanzadə", email = "cavanshirpro@gmail.com"}, {name = "YoungLionOrganization"}]
 keywords = ["ylspec", "metadata", "manifest", "configuration", "embedding", "toml"]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -23,14 +23,21 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Operating System :: Microsoft :: Windows", "Operating System :: POSIX :: Linux",
   "Operating System :: MacOS", "Typing :: Typed",
+  "Intended Audience :: Developers", "Topic :: File Formats",
+  "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = []
 
 [project.urls]
+Homepage = "https://github.com/YoungLionOrganization/YLSpec"
 Repository = "https://github.com/YoungLionOrganization/YLSpec"
-Documentation = "https://github.com/YoungLionOrganization/YLSpec/tree/main/docs"
+Documentation = "https://github.com/YoungLionOrganization/YLSpec/blob/main/docs/python-api.md"
 Issues = "https://github.com/YoungLionOrganization/YLSpec/issues"
 Changelog = "https://github.com/YoungLionOrganization/YLSpec/blob/main/CHANGELOG.md"
+Releases = "https://github.com/YoungLionOrganization/YLSpec/releases"
+Source = "https://github.com/YoungLionOrganization/YLSpec"
+Security = "https://github.com/YoungLionOrganization/YLSpec/blob/main/SECURITY.md"
+Authors = "https://github.com/YoungLionOrganization/YLSpec/blob/main/AUTHORS.md"
 
 [tool.scikit-build]
 minimum-version = "0.11"

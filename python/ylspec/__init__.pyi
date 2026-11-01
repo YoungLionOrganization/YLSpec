@@ -26,11 +26,24 @@ from typing import Self as _Self, TypeAlias as _TypeAlias, TypedDict as _TypedDi
 __all__ = [
     "Document", "TemporalValue", "Limits", "Error", "ParseError", "LimitError",
     "FrameError", "UnsupportedError", "ProfileError", "loads", "dumps", "load",
-    "dump", "pack", "unpack", "read_at", "__version__",
+    "dump", "pack", "unpack", "read_at", "__version__", "__author__",
+    "__maintainer__", "__email__", "__license__", "__copyright__", "__url__",
 ]
 
 __version__: str
 """Implementation release version, distinct from format and profile versions."""
+__author__: str
+"""Creator and initial copyright holder: Cavanşir Qurbanzadə."""
+__maintainer__: str
+"""Primary maintainer and hosting organization; copyright remains individual."""
+__email__: str
+"""Public maintenance contact: cavanshirpro@gmail.com."""
+__license__: str
+"""SPDX license expression for original project material: Apache-2.0."""
+__copyright__: str
+"""Original-project copyright notice; dependencies retain their own notices."""
+__url__: str
+"""Canonical source repository and project homepage."""
 
 _TemporalKind: _TypeAlias = _Literal["date", "time", "datetime", "datetime-offset"]
 

@@ -1,6 +1,9 @@
 # Copyright 2026 Cavanşir Qurbanzadə. SPDX-License-Identifier: Apache-2.0
 """Validate release inputs, stage artifacts, and publish without replacing bytes."""
 import argparse
+from email.parser import Parser
+from email.policy import default as email_policy
+from email.utils import getaddresses
 import hashlib
 import json
 import os
@@ -37,6 +40,31 @@ def gh(*args):
     return subprocess.check_output(["gh", *args], text=True, encoding="utf-8")
 
 
+def validate_python_metadata(text, version):
+    """Gate wheels and sdists on identity, attribution, licensing, and presentation."""
+    metadata = Parser(policy=email_policy).parsestr(text)
+    expected = {"Name": "ylspec", "Version": version, "Requires-Python": ">=3.11",
+                "License-Expression": "Apache-2.0", "Description-Content-Type": "text/markdown"}
+    for key, value in expected.items():
+        if str(metadata.get(key, "")) != value:
+            raise ValueError(f"Python metadata mismatch: {key}")
+    for field in ("Author-email", "Maintainer-email"):
+        addresses = getaddresses([str(value) for value in metadata.get_all(field, [])])
+        if ("Cavanşir Qurbanzadə", "cavanshirpro@gmail.com") not in addresses:
+            raise ValueError(f"Python metadata missing original maintainer identity: {field}")
+    if "YoungLionOrganization" not in str(metadata.get("Maintainer", "")):
+        raise ValueError("Python metadata missing organization maintainer")
+    licenses = set(map(str, metadata.get_all("License-File", [])))
+    if not {"LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "vendor/tomlc17/LICENSE"} <= licenses:
+        raise ValueError("Python metadata missing distributed license notices")
+    urls = dict(str(value).split(", ", 1) for value in metadata.get_all("Project-URL", []))
+    if urls.get("Repository") != "https://github.com/YoungLionOrganization/YLSpec" or not all(
+            key in urls for key in ("Homepage", "Documentation", "Issues", "Changelog", "Authors", "Security")):
+        raise ValueError("Python metadata missing canonical project links")
+    if "# YLSpec for Python" not in metadata.get_payload():
+        raise ValueError("Python metadata missing Python package description")
+
+
 def stage(source, destination, sha):
     import shutil
     info = metadata()
@@ -65,8 +93,10 @@ def stage(source, destination, sha):
         with zipfile.ZipFile(wheel) as archive:
             name = next(n for n in archive.namelist() if n.endswith(".dist-info/METADATA"))
             text = archive.read(name).decode()
-            if f"\nVersion: {info['version']}\n" not in text or "\nName: ylspec\n" not in text:
-                raise ValueError(f"Wheel metadata mismatch: {wheel.name}")
+            validate_python_metadata(text, info["version"])
+            for resource in ("__init__.pyi", "_native.pyi", "py.typed"):
+                if "ylspec/" + resource not in archive.namelist():
+                    raise ValueError(f"Wheel missing typing resource: {wheel.name}: {resource}")
     sdist = destination / expected["source_pattern"].format(version=info["version"])
     if not sdist.is_file():
         raise ValueError("Missing source distribution")
@@ -75,8 +105,7 @@ def stage(source, destination, sha):
             raise ValueError(f"Missing language artifact: {pattern}")
     with tarfile.open(sdist) as archive:
         member = next(m for m in archive.getmembers() if m.name.endswith("/PKG-INFO") and m.name.count("/") == 1)
-        if f"\nVersion: {info['version']}\n" not in archive.extractfile(member).read().decode():
-            raise ValueError("Source distribution version mismatch")
+        validate_python_metadata(archive.extractfile(member).read().decode(), info["version"])
     manifest = {"version": info["version"], "commit": sha,
                 "assets": {p.name: digest(p) for p in sorted(destination.iterdir()) if p.is_file()}}
     (destination / "build-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")

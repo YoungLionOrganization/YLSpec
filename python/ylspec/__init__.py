@@ -9,9 +9,16 @@ from typing import Any, Callable, Mapping
 from . import _native
 
 __version__ = _native.__version__
+__author__ = "Cavanşir Qurbanzadə"
+__maintainer__ = "Cavanşir Qurbanzadə; YoungLionOrganization"
+__email__ = "cavanshirpro@gmail.com"
+__license__ = "Apache-2.0"
+__copyright__ = "Copyright 2026 Cavanşir Qurbanzadə"
+__url__ = "https://github.com/YoungLionOrganization/YLSpec"
 __all__ = ["Document", "TemporalValue", "Limits", "Error", "ParseError", "LimitError",
            "FrameError", "UnsupportedError", "ProfileError", "loads", "dumps", "load",
-           "dump", "pack", "unpack", "read_at", "__version__"]
+           "dump", "pack", "unpack", "read_at", "__version__", "__author__",
+           "__maintainer__", "__email__", "__license__", "__copyright__", "__url__"]
 
 
 class Error(ValueError):

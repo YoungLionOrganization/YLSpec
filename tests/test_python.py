@@ -3,11 +3,24 @@ import io
 import math
 import struct
 from importlib.resources import files
+from importlib.metadata import metadata
+from email.utils import getaddresses
 from datetime import date, datetime, time, timezone
 import pytest
 import ylspec
 
 PREFIX = "[_ylspec]\nversion='0.1'\nprofile='core.data'\nprofile_version='0.1'\n[data]\n"
+
+
+def test_installed_package_identity_and_distribution_metadata():
+    info = metadata("ylspec")
+    assert info["Version"] == ylspec.__version__
+    assert info["License-Expression"] == ylspec.__license__ == "Apache-2.0"
+    assert (ylspec.__author__, ylspec.__email__) in getaddresses(info.get_all("Author-email"))
+    assert ylspec.__copyright__ == "Copyright 2026 Cavanşir Qurbanzadə"
+    assert "YoungLionOrganization" in ylspec.__maintainer__
+    assert "Repository, " + ylspec.__url__ in info.get_all("Project-URL")
+    assert "# YLSpec for Python" in info.get_payload()
 
 
 def test_installed_package_includes_documented_type_stubs():

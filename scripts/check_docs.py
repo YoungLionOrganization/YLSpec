@@ -12,7 +12,7 @@ def main():
     generated = ROOT / "build/docs"
     generated.mkdir(parents=True, exist_ok=True)
     diagram_index = 0
-    for path in [ROOT / "README.md", ROOT / "javascript/README.md", ROOT / "jvm/README.md", ROOT / "editors/vscode/README.md", *sorted((ROOT / "docs").glob("*.md")), *sorted((ROOT / "release/notes").glob("*.md"))]:
+    for path in [ROOT / "README.md", ROOT / "python/README.md", ROOT / "javascript/README.md", ROOT / "jvm/README.md", ROOT / "editors/vscode/README.md", *sorted((ROOT / "docs").glob("*.md")), *sorted((ROOT / "release/notes").glob("*.md"))]:
         text = path.read_text(encoding="utf-8")
         for target in re.findall(r"\]\(([^)]+)\)", text):
             target = target.split("#", 1)[0]

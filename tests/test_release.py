@@ -72,3 +72,35 @@ def test_existing_asset_hash_must_match(tmp_path):
     artifact.write_bytes(b"verified")
     with pytest.raises(ValueError, match="Existing asset differs"):
         run_draft(tmp_path, {"draft": True, "target_commitish": "a" * 40, "assets": [{"name": artifact.name, "digest": "sha256:" + "0" * 64}]})
+
+
+def python_metadata():
+    import tomllib
+    from email.message import EmailMessage
+    from email.utils import formataddr
+    project = tomllib.loads((release.ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    message = EmailMessage()
+    for field, value in {"Metadata-Version": "2.4", "Name": project["name"], "Version": "0.1.3",
+                         "Requires-Python": project["requires-python"], "License-Expression": project["license"],
+                         "Description-Content-Type": "text/markdown", "Maintainer": "YoungLionOrganization"}.items():
+        message[field] = value
+    for field in ("Author-email", "Maintainer-email"):
+        message[field] = formataddr(("Cavanşir Qurbanzadə", "cavanshirpro@gmail.com"))
+    for license_file in project["license-files"]:
+        message["License-File"] = license_file
+    for label, url in project["urls"].items():
+        message["Project-URL"] = label + ", " + url
+    message.set_payload("# YLSpec for Python\n")
+    return message
+
+
+def test_python_metadata_preserves_unicode_authorship_and_links():
+    release.validate_python_metadata(python_metadata().as_string(), "0.1.3")
+
+
+@pytest.mark.parametrize("field", ["Author-email", "Maintainer-email", "Maintainer", "License-File", "Project-URL"])
+def test_python_metadata_rejects_incomplete_attribution(field):
+    message = python_metadata()
+    del message[field]
+    with pytest.raises(ValueError, match="Python metadata"):
+        release.validate_python_metadata(message.as_string(), "0.1.3")

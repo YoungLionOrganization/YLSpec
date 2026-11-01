@@ -6,7 +6,7 @@ import subprocess
 
 root = Path(__file__).resolve().parents[1]
 count = 0
-for path in [root / "README.md", *sorted((root / "docs").glob("*.md"))]:
+for path in [root / "README.md", root / "python/README.md", *sorted((root / "docs").glob("*.md"))]:
     for snippet in re.findall(r"```python\n(.*?)```", path.read_text(encoding="utf-8"), re.S):
         subprocess.run(["python", "-c", snippet], check=True, cwd=root)
         count += 1
