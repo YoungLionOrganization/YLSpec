@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.4
+
+Preserve readable Unicode author/maintainer names in Python distribution fields
+and separate their public email addresses. Reject raw RFC 2047 display-name
+encoding that PyPI otherwise renders literally. Keep all 0.1.3 features and
+existing published artifacts unchanged.
+
+See the [metadata correction notes](release/notes/v0.1.4.md).
+
 ## 0.1.3
 
 Improve Python authorship, maintainer identity, PyPI overview, project links,

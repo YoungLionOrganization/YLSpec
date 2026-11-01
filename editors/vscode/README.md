@@ -32,13 +32,13 @@ inside the VSIX; initialization does not download a parser.
 
 ## Install
 
-Download `ylspec-0.1.3.vsix` from a verified
+Download `ylspec-0.1.4.vsix` from a verified
 [GitHub Release](https://github.com/YoungLionOrganization/YLSpec/releases).
 In VS Code, open **Extensions → … → Install from VSIX…**, then select that file.
 Alternatively:
 
 ```sh
-code --install-extension ylspec-0.1.3.vsix
+code --install-extension ylspec-0.1.4.vsix
 ```
 
 Install directly from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ylvsmp.ylspec)

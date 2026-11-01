@@ -9,7 +9,9 @@ wheel targets are listed in [compatibility](compatibility.md).
 Created by **Cavanşir Qurbanzadə** and maintained under **YoungLionOrganization**.
 The public contact is **cavanshirpro@gmail.com**; original material is Apache-2.0.
 The [Python package overview](../python/README.md) is also the PyPI description.
-Distribution metadata includes Unicode authorship, maintainer identity, SPDX
+Distribution metadata stores readable UTF-8 author/maintainer names separately
+from their ASCII email fields, avoiding registry-visible RFC 2047 display names.
+It includes maintainer identity, SPDX
 licensing, original/third-party notices, and canonical support and source links.
 Release assembly verifies these fields in every wheel and source distribution.
 

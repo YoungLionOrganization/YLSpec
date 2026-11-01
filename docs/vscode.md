@@ -1,8 +1,8 @@
 # Visual Studio Code integration
 
 The [extension README](../editors/vscode/README.md) describes installation,
-settings, commands, and expected editor behavior. Version 0.1.3 is packaged as
-`ylspec-0.1.3.vsix`; the binary is a required release output. Its extension ID is
+settings, commands, and expected editor behavior. Version 0.1.4 is packaged as
+`ylspec-0.1.4.vsix`; the binary is a required release output. Its extension ID is
 `ylvsmp.ylspec`.
 
 ## Architecture

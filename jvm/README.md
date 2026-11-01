@@ -12,9 +12,9 @@ its temporary C tree before returning.
 Coordinates use the domain-based namespace `xyz.younglion`:
 
 ```kotlin
-implementation("xyz.younglion:ylspec:0.1.3")
+implementation("xyz.younglion:ylspec:0.1.4")
 // Optional idiomatic Kotlin extensions:
-implementation("xyz.younglion:ylspec-kotlin:0.1.3")
+implementation("xyz.younglion:ylspec-kotlin:0.1.4")
 ```
 
 The Java artifact has a runtime dependency on `ylspec-natives`, which bundles
@@ -26,7 +26,7 @@ can supply an absolute `-Dylspec.native.path=/path/to/library` instead.
 The `xyz.younglion` namespace is verified; version 0.1.2 was published successfully
 to Maven Central. Each new version becomes available after its Central workflow
 succeeds. For offline installation or before a new registry upload completes, download
-`ylspec-jvm-0.1.3.zip` from the GitHub Release and extract it. The ZIP root is a
+`ylspec-jvm-0.1.4.zip` from the GitHub Release and extract it. The ZIP root is a
 Maven repository containing the same group/artifact coordinates, POMs, and JAR/AAR
 files. Add that extracted root to your build's Maven repository configuration;
 the dependency declarations above remain the same. Kotlin's standard-library
@@ -52,10 +52,10 @@ Use the common Java/Kotlin API and add the JNI-only Android AAR. Exclude desktop
 native resources from the Android dependency graph:
 
 ```kotlin
-implementation("xyz.younglion:ylspec-kotlin:0.1.3") {
+implementation("xyz.younglion:ylspec-kotlin:0.1.4") {
     exclude(group = "xyz.younglion", module = "ylspec-natives")
 }
-implementation("xyz.younglion:ylspec-android:0.1.3@aar")
+implementation("xyz.younglion:ylspec-android:0.1.4@aar")
 ```
 
 The AAR supplies armeabi-v7a, arm64-v8a, x86, and x86_64 libraries and consumer

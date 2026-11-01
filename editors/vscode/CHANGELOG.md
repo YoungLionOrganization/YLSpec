@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4
+
+- Follow the shared YLSpec release version for the Python authorship metadata correction.
+- Preserve all IntelliSense improvements, settings, and behavior introduced in 0.1.3.
+
 ## 0.1.3
 
 - Suggest standard tables inside brackets, nested paths, quoted namespaces, and arrays of tables.

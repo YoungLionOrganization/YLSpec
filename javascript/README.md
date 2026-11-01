@@ -11,8 +11,8 @@ npm install @younglionorganization/ylspec
 ```
 
 The package is published on npm. For an offline package installation, download
-the checksummed `younglionorganization-ylspec-0.1.3.tgz` asset from the GitHub Release
-and use `npm install ./younglionorganization-ylspec-0.1.3.tgz`. Installation never
+the checksummed `younglionorganization-ylspec-0.1.4.tgz` asset from the GitHub Release
+and use `npm install ./younglionorganization-ylspec-0.1.4.tgz`. Installation never
 downloads or compiles a native binary; supported binaries are already packaged.
 
 ## Node.js and TypeScript
