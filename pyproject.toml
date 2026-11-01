@@ -13,8 +13,8 @@ license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "vendor/tomlc17/LICENSE"]
 # Separate display names and mailboxes so older backends do not RFC 2047-encode
 # Unicode names inside address fields that registry interfaces display verbatim.
-authors = [{name = "Cavanşir Qurbanzadə"}, {email = "cavanshirpro@gmail.com"}]
-maintainers = [{name = "Cavanşir Qurbanzadə"}, {name = "YoungLionOrganization"}, {email = "cavanshirpro@gmail.com"}]
+authors = [{name = "Cavanşir Qurbanzadə"}, {name = "Cavanshirpro", email = "cavanshirpro@gmail.com"}]
+maintainers = [{name = "Cavanşir Qurbanzadə"}, {name = "YoungLionOrganization"}, {name = "Cavanshirpro", email = "cavanshirpro@gmail.com"}]
 keywords = ["ylspec", "metadata", "manifest", "configuration", "embedding", "toml"]
 classifiers = [
   "Development Status :: 3 - Alpha",

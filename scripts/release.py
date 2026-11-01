@@ -50,7 +50,7 @@ def validate_python_metadata(text, version):
             raise ValueError(f"Python metadata mismatch: {key}")
     for field in ("Author-email", "Maintainer-email"):
         addresses = getaddresses([str(value) for value in metadata.get_all(field, [])])
-        if ("", "cavanshirpro@gmail.com") not in addresses:
+        if ("Cavanshirpro", "cavanshirpro@gmail.com") not in addresses:
             raise ValueError(f"Python metadata missing original maintainer identity: {field}")
     if str(metadata.get("Author", "")) != "Cavanşir Qurbanzadə":
         raise ValueError("Python metadata missing readable original author")

@@ -17,7 +17,7 @@ def test_installed_package_identity_and_distribution_metadata():
     assert info["Version"] == ylspec.__version__
     assert info["License-Expression"] == ylspec.__license__ == "Apache-2.0"
     assert info["Author"] == ylspec.__author__
-    assert ("", ylspec.__email__) in getaddresses(info.get_all("Author-email"))
+    assert ("Cavanshirpro", ylspec.__email__) in getaddresses(info.get_all("Author-email"))
     assert ylspec.__author__ in info["Maintainer"]
     assert not any("=?" in str(info[field]) for field in ("Author", "Author-email", "Maintainer", "Maintainer-email"))
     assert ylspec.__copyright__ == "Copyright 2026 Cavanşir Qurbanzadə"

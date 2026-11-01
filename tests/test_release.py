@@ -85,7 +85,7 @@ def python_metadata():
                          "Maintainer": "Cavanşir Qurbanzadə, YoungLionOrganization"}.items():
         message[field] = value
     for field in ("Author-email", "Maintainer-email"):
-        message[field] = "cavanshirpro@gmail.com"
+        message[field] = "Cavanshirpro <cavanshirpro@gmail.com>"
     for license_file in project["license-files"]:
         message["License-File"] = license_file
     for label, url in project["urls"].items():
