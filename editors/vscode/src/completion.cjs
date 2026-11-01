@@ -63,7 +63,7 @@ function statements(tokens) {
   for (const token of tokens) {
     if (token.kind === 'comment') continue;
     if (token.kind === '\n' && (depth === 0 || current[0]?.kind === '[')) {
-      if (current.length) result.push(current);
+      if (current.length) {current.finished = true; result.push(current);}
       current = []; depth = 0; continue;
     }
     if (token.kind === '\n') continue;
@@ -89,7 +89,7 @@ function complete(text, offset, options = {}) {
   let table = [], current = [];
   for (const statement of statements(before)) {
     const header = headerPath(statement);
-    const newline = text.indexOf('\n', statement.at(-1).end), finished = newline >= 0 && newline < offset;
+    const finished = statement.finished;
     // A closed header remains the current context on its own line.
     if (header && finished) table = header.path;
     else current = statement;
