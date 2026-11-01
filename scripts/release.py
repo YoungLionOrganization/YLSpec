@@ -50,10 +50,16 @@ def validate_python_metadata(text, version):
             raise ValueError(f"Python metadata mismatch: {key}")
     for field in ("Author-email", "Maintainer-email"):
         addresses = getaddresses([str(value) for value in metadata.get_all(field, [])])
-        if ("Cavanşir Qurbanzadə", "cavanshirpro@gmail.com") not in addresses:
+        if ("", "cavanshirpro@gmail.com") not in addresses:
             raise ValueError(f"Python metadata missing original maintainer identity: {field}")
-    if "YoungLionOrganization" not in str(metadata.get("Maintainer", "")):
+    if str(metadata.get("Author", "")) != "Cavanşir Qurbanzadə":
+        raise ValueError("Python metadata missing readable original author")
+    if not all(name in str(metadata.get("Maintainer", "")) for name in ("Cavanşir Qurbanzadə", "YoungLionOrganization")):
         raise ValueError("Python metadata missing organization maintainer")
+    raw_headers = text.split("\n\n", 1)[0]
+    if any("=?" in value for field in ("Author", "Author-email", "Maintainer", "Maintainer-email")
+           for value in re.findall(r"^" + field + r": (.*)$", raw_headers, re.M | re.I)):
+        raise ValueError("Python metadata contains registry-visible encoded author names")
     licenses = set(map(str, metadata.get_all("License-File", [])))
     if not {"LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "vendor/tomlc17/LICENSE"} <= licenses:
         raise ValueError("Python metadata missing distributed license notices")

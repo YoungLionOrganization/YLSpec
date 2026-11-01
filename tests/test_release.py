@@ -77,15 +77,15 @@ def test_existing_asset_hash_must_match(tmp_path):
 def python_metadata():
     import tomllib
     from email.message import EmailMessage
-    from email.utils import formataddr
     project = tomllib.loads((release.ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
-    message = EmailMessage()
+    message = EmailMessage(policy=release.email_policy.clone(utf8=True, max_line_length=0))
     for field, value in {"Metadata-Version": "2.4", "Name": project["name"], "Version": "0.1.3",
                          "Requires-Python": project["requires-python"], "License-Expression": project["license"],
-                         "Description-Content-Type": "text/markdown", "Maintainer": "YoungLionOrganization"}.items():
+                         "Description-Content-Type": "text/markdown", "Author": "Cavanşir Qurbanzadə",
+                         "Maintainer": "Cavanşir Qurbanzadə, YoungLionOrganization"}.items():
         message[field] = value
     for field in ("Author-email", "Maintainer-email"):
-        message[field] = formataddr(("Cavanşir Qurbanzadə", "cavanshirpro@gmail.com"))
+        message[field] = "cavanshirpro@gmail.com"
     for license_file in project["license-files"]:
         message["License-File"] = license_file
     for label, url in project["urls"].items():
@@ -98,9 +98,15 @@ def test_python_metadata_preserves_unicode_authorship_and_links():
     release.validate_python_metadata(python_metadata().as_string(), "0.1.3")
 
 
-@pytest.mark.parametrize("field", ["Author-email", "Maintainer-email", "Maintainer", "License-File", "Project-URL"])
+@pytest.mark.parametrize("field", ["Author", "Author-email", "Maintainer-email", "Maintainer", "License-File", "Project-URL"])
 def test_python_metadata_rejects_incomplete_attribution(field):
     message = python_metadata()
     del message[field]
     with pytest.raises(ValueError, match="Python metadata"):
         release.validate_python_metadata(message.as_string(), "0.1.3")
+
+
+def test_python_metadata_rejects_registry_visible_encoded_names():
+    text = python_metadata().as_string().replace("Author: Cavanşir Qurbanzadə", "Author: =?utf-8?b?Q2F2YW7Fn2lyIFF1cmJhbnphZMmZ?=")
+    with pytest.raises(ValueError, match="encoded author names"):
+        release.validate_python_metadata(text, "0.1.3")

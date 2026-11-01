@@ -5,7 +5,6 @@ import struct
 from importlib.resources import files
 from importlib.metadata import metadata
 from email.utils import getaddresses
-from email.header import decode_header, make_header
 from datetime import date, datetime, time, timezone
 import pytest
 import ylspec
@@ -17,8 +16,10 @@ def test_installed_package_identity_and_distribution_metadata():
     info = metadata("ylspec")
     assert info["Version"] == ylspec.__version__
     assert info["License-Expression"] == ylspec.__license__ == "Apache-2.0"
-    authors = [(str(make_header(decode_header(name))), address) for name, address in getaddresses(info.get_all("Author-email"))]
-    assert (ylspec.__author__, ylspec.__email__) in authors
+    assert info["Author"] == ylspec.__author__
+    assert ("", ylspec.__email__) in getaddresses(info.get_all("Author-email"))
+    assert ylspec.__author__ in info["Maintainer"]
+    assert not any("=?" in str(info[field]) for field in ("Author", "Author-email", "Maintainer", "Maintainer-email"))
     assert ylspec.__copyright__ == "Copyright 2026 Cavanşir Qurbanzadə"
     assert "YoungLionOrganization" in ylspec.__maintainer__
     assert "Repository, " + ylspec.__url__ in info.get_all("Project-URL")
