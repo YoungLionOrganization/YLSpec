@@ -22,7 +22,7 @@ def test_installed_package_identity_and_distribution_metadata():
     assert ylspec.__copyright__ == "Copyright 2026 Cavanşir Qurbanzadə"
     assert "YoungLionOrganization" in ylspec.__maintainer__
     assert "Repository, " + ylspec.__url__ in info.get_all("Project-URL")
-    assert "# YLSpec for Python" in info.get_payload()
+    assert "# YLSpec for Python" in (info.get("Description") or info.get_payload())
 
 
 @pytest.mark.parametrize("field", ["max_document_bytes", "max_depth"])

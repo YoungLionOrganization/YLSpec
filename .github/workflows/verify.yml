@@ -29,6 +29,7 @@ jobs:
           python scripts/release.py metadata
           ruff check python scripts tests examples
           python -m pytest tests/test_release.py tests/test_registry.py -q
+          node --test editors/vscode/test/completion.test.cjs
       - name: Render Mermaid diagram
         run: |
           mkdir -p build/docs
