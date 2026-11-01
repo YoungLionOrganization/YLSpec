@@ -1,6 +1,6 @@
 {
-  "version": "0.1.2",
-  "title": "YLSpec 0.1.2 — Verified registry identities and Trusted Publishing",
-  "notes": "release/notes/v0.1.2.md",
-  "prerelease": false
+  "notes": "release/notes/v0.1.3.md",
+  "version": "0.1.3",
+  "prerelease": false,
+  "title": "YLSpec 0.1.3 — Python package identity and context-aware IntelliSense"
 }

@@ -23,7 +23,7 @@ on Node.js and WebAssembly in browsers and React applications. Java and Kotlin
 use JNI on desktop JVMs and Android. A VS Code extension brings the same parser
 to `.ylspec` editing.
 
-**Status:** `0.1.2`, experimental. The specification and APIs may change before
+**Status:** `0.1.3`, experimental. The specification and APIs may change before
 1.0. Review the [compatibility policy](docs/compatibility.md) before depending on
 an experimental version. A release's support claims are backed by its linked
 GitHub Actions run. Package-registry publication requires the account setup
@@ -105,7 +105,7 @@ See [building](docs/building.md) for source builds and supported toolchains.
 | Browser / React | The same npm package, bundled C WebAssembly | [Browser initialization](javascript/README.md#browser-and-react) |
 | Java / Kotlin desktop | `xyz.younglion:ylspec` and `ylspec-kotlin` | [JVM guide](jvm/README.md) |
 | Android | Common Java/Kotlin API plus `ylspec-android` JNI AAR | [Android dependencies](jvm/README.md#android) |
-| VS Code | `ylvsmp.ylspec` / `ylspec-0.1.2.vsix`; language tools using bundled WebAssembly | [Editor guide](docs/vscode.md) |
+| VS Code | `ylvsmp.ylspec` / `ylspec-0.1.3.vsix`; language tools using bundled WebAssembly | [Editor guide](docs/vscode.md) |
 
 The JavaScript package is published on
 [npm](https://www.npmjs.com/package/@younglionorganization/ylspec). Central

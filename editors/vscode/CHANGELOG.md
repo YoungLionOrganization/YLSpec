@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.3
+
+- Suggest standard tables inside brackets, nested paths, quoted namespaces, and arrays of tables.
+- Complete booleans when `t` or `f` is typed, including array and inline-table entries.
+- Suggest metadata defaults and configurable custom profile identifiers inside quotes.
+- Suppress existing metadata keys, comments, application strings, and table redefinitions.
+- Replace partial tokens without duplicating assignment operators or closing brackets.
+- Open suggestions when a single cursor enters empty brackets; add completion and auto-show settings.
+- Bound completion scanning and verify accepted edits in the real VS Code integration suite.
+
 ## 0.1.2
 
 - Publish under the configured YoungLion Marketplace publisher as `ylvsmp.ylspec`.

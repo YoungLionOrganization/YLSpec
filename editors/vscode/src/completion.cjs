@@ -89,10 +89,11 @@ function complete(text, offset, options = {}) {
   let table = [], current = [];
   for (const statement of statements(before)) {
     const header = headerPath(statement);
+    const newline = text.indexOf('\n', statement.at(-1).end), finished = newline >= 0 && newline < offset;
     // A closed header remains the current context on its own line.
-    if (header && statement.at(-1).end < offset && text.slice(statement.at(-1).end, offset).includes('\n')) table = header.path;
+    if (header && finished) table = header.path;
     else current = statement;
-    if (statement.at(-1).end < offset && text.slice(statement.at(-1).end, offset).includes('\n')) current = [];
+    if (finished) current = [];
   }
   const all = statements(tokens), usedTables = new Set(), usedMetadata = new Set();
   let scope = [];
@@ -128,7 +129,7 @@ function complete(text, offset, options = {}) {
     const parentTokens = current.slice(width), parent = keyPath(parentTokens.at(-1)?.kind === '.' ? parentTokens.slice(0, -1) : parentTokens);
     if (parent && ['data', 'extensions'].includes(parent[0]) && (parent.length > 1 || parentTokens.at(-1)?.kind === '.')) {
       const base = displayPath(parent);
-      candidates.push([base + '.section', base + '.${1:section}', 'Create a nested application table', true]);
+      candidates.push([base + '.section', base.replace(/[\\$}]/g, '\\$&') + '.${1:section}', 'Create a nested application table', true]);
     }
     if (width === 2) candidates.push(['data.items', 'data.${1:items}', 'Create an application-defined array of tables', true]);
     for (const statement of all) {

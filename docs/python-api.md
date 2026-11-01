@@ -4,6 +4,33 @@ The `ylspec` package requires CPython 3.11 or newer and uses its bundled native
 extension. Runtime installation has no Python package dependencies. The initial
 wheel targets are listed in [compatibility](compatibility.md).
 
+## Package identity
+
+Created by **Cavanşir Qurbanzadə** and maintained under **YoungLionOrganization**.
+The public contact is **cavanshirpro@gmail.com**; original material is Apache-2.0.
+The [Python package overview](../python/README.md) is also the PyPI description.
+Distribution metadata includes Unicode authorship, maintainer identity, SPDX
+licensing, original/third-party notices, and canonical support and source links.
+Release assembly verifies these fields in every wheel and source distribution.
+
+```python
+import ylspec
+from importlib.metadata import metadata
+
+assert ylspec.__author__ == "Cavanşir Qurbanzadə"
+assert ylspec.__license__ == "Apache-2.0"
+assert metadata("ylspec")["Version"] == ylspec.__version__
+```
+
+`__maintainer__`, `__email__`, `__copyright__`, and `__url__` provide the matching
+runtime identity. Detailed attribution remains in [AUTHORS.md](../AUTHORS.md).
+
+Limits require integer values, excluding booleans. Explicit frame offsets and
+region lengths likewise require integers within the unsigned 64-bit range;
+oversized values raise `OverflowError` before native conversion or stream access.
+Negative offsets raise `ValueError`; a negative explicit region raises `FrameError`.
+Both `dumps` and `pack` require a `Document` and reject other values with `TypeError`.
+
 ## Editor support and bundled type stubs
 
 The package includes detailed PEP 561 type information alongside the native

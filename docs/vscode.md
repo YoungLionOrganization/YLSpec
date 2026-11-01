@@ -1,8 +1,8 @@
 # Visual Studio Code integration
 
 The [extension README](../editors/vscode/README.md) describes installation,
-settings, commands, and expected editor behavior. Version 0.1.2 is packaged as
-`ylspec-0.1.2.vsix`; the binary is a required release output. Its extension ID is
+settings, commands, and expected editor behavior. Version 0.1.3 is packaged as
+`ylspec-0.1.3.vsix`; the binary is a required release output. Its extension ID is
 `ylvsmp.ylspec`.
 
 ## Architecture
@@ -45,6 +45,27 @@ whitespace, key layout, or original literal spelling. Consequently,
 `ylspec.format.enabled` defaults to false. A user must opt into that documented
 behavior. Resource limits also apply to formatting. Invalid documents and stale
 requests do not produce replacement edits.
+
+## Completion contract
+
+The tolerant completion lexer identifies table headers, assignment keys, and
+value positions even before a document is valid. It does not replace the C
+parser. See the [editing examples](../editors/vscode/README.md#completion-while-editing)
+for bracket, boolean, namespace, metadata, and array completions.
+
+Triggers include `[`, `.`, `=`, whitespace, quotes, and commas; ordinary typing
+continues filtering. A single cursor entering empty brackets opens suggestions
+when `ylspec.completion.autoShow` is enabled. Explicit completion remains
+available through the editor's normal shortcut. `completion.enabled` disables
+the provider, and `completion.profiles` adds profile identities without loading
+workspace code. Comments and application string contents are excluded.
+Scanning is capped at 1,048,576 UTF-16 code units, separately from validation limits.
+
+The integration suite accepts real completion edits, checks existing closing
+brackets and token suffixes, and validates a completed boolean document through
+the bundled C engine. Lexer tests cover quoted/dotted keys, multiline literals,
+Unicode ranges, inline tables, array entries, repeated array tables, and
+suppression of existing metadata keys.
 
 ## Build and verification
 

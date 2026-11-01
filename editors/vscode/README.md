@@ -16,7 +16,9 @@ and Kotlin libraries, compiled to bundled WebAssembly.
 | Syntax highlighting | Tables, keys, strings, multiline strings, escapes, numbers, temporal literals, booleans, comments |
 | Diagnostics | TOML syntax, envelope versions, structure, configured limits, and mandatory features |
 | Profile handling | `core.data` is validated; unsupported custom profiles produce a warning and remain editable |
-| Metadata completion | Standard keys and their initial values inside `[_ylspec]` |
+| Table completion | Reserved sections, nested application tables, quoted extension namespaces, and array-of-table paths |
+| Metadata completion | Missing standard keys, supported format/profile defaults, and configured custom profile identifiers |
+| Value completion | Booleans, strings, arrays, inline tables, numbers, dates, times, and timestamps |
 | Hover documentation | Descriptions of the four standard metadata keys |
 | Snippets | `ylspec`, `ylmanifest`, and `ylextension` |
 | Commands | **YLSpec: New Document** and **YLSpec: Validate Document** |
@@ -30,17 +32,17 @@ inside the VSIX; initialization does not download a parser.
 
 ## Install
 
-Download `ylspec-0.1.2.vsix` from a verified
+Download `ylspec-0.1.3.vsix` from a verified
 [GitHub Release](https://github.com/YoungLionOrganization/YLSpec/releases).
 In VS Code, open **Extensions → … → Install from VSIX…**, then select that file.
 Alternatively:
 
 ```sh
-code --install-extension ylspec-0.1.2.vsix
+code --install-extension ylspec-0.1.3.vsix
 ```
 
-Marketplace availability requires a separately registered publisher and a
-successful Marketplace upload. A packaged VSIX is usable without that upload.
+Install directly from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ylvsmp.ylspec)
+or run `code --install-extension ylvsmp.ylspec`. A packaged VSIX is also usable offline.
 The package identifier is `ylvsmp.ylspec`, published by YoungLion (`ylvsmp`).
 
 ## Start a document
@@ -62,10 +64,53 @@ enabled = true
 Application-specific keys belong in `data`. Extra namespaces belong in
 `extensions`. The extension does not invent a schema for project data.
 
+## Completion while editing
+
+Suggestions follow the current TOML context and work in unfinished documents.
+Type a trigger character or press **Ctrl+Space** (**Control+Space** on macOS).
+Moving a single cursor into an empty `[]` also opens the relevant suggestions.
+Use the arrow keys and **Enter** or **Tab** to accept a suggestion.
+
+| Cursor context (`│` marks the cursor) | Suggestions and edits |
+|---|---|
+| `[│]` | `_ylspec`, `data`, `extensions`, nested tables, and namespace templates; preserves the existing `]` |
+| `[data.network.│]` | A nested section template under `data.network` |
+| `[extensions.│]` | A quoted namespace template such as `extensions."xyz.example"` |
+| `[[│]]` | An array-of-tables template and repeated array paths already used in the document |
+| `[_ylspec]` followed by `pro│` | Missing `profile` / `profile_version` fields with defaults |
+| `profile = "co│"` | `"core.data"` and explicitly configured custom profile identifiers |
+| `enabled=t│` | `true` first, followed by matching time/timestamp templates |
+| `flags = [│]` or `[true, │]` | TOML values appropriate to an array position |
+| `options = {enabled=f│}` | `false`, preserving the surrounding inline table |
+
+Quoted keys, Unicode, multiline strings, comments, inline metadata, and dotted
+table paths are recognized. Completions replace the entire partial token and
+avoid adding a second assignment or closing bracket. Existing standard fields
+and explicitly declared regular tables are omitted where redefinition would be
+invalid. Literal value suggestions stay out of comments and application strings.
+
+Application data has no universal schema, so the extension offers TOML value
+templates without claiming arbitrary application keys are valid. Additional
+profile identifiers can be suggested with:
+
+```json
+{"ylspec.completion.profiles": ["example.manifest", "example.configuration"]}
+```
+
+This setting supplies labels only; it does not load validators or mark custom
+profiles as supported. Semantic validation still uses the C core. Completion
+scanning is bounded to 1,048,576 UTF-16 code units to keep large files responsive;
+the independently configured validation byte limit still applies to diagnostics.
+Language-specific quick suggestions include strings so profile values can
+complete inside quotes. Explicit user/workspace editor preferences take precedence.
+
 ## Settings
 
 | Setting | Default | Purpose |
 |---|---|---|
+| `ylspec.completion.enabled` | `true` | Context-aware completion provider |
+| `ylspec.completion.autoShow` | `true` | Open suggestions when entering an empty header or array |
+| `ylspec.completion.profiles` | `[]` | Additional profile identifiers; no validation registration |
 | `ylspec.validation.enabled` | `true` | Automatic diagnostics; explicit validation remains available |
 | `ylspec.validation.delay` | `350` | Debounce delay in milliseconds; 100–5000 |
 | `ylspec.maxDocumentBytes` | `16777216` | UTF-8 source byte limit; configurable up to 64 MiB |

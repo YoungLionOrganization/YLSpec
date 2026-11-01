@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.3
+
+Improve Python authorship, maintainer identity, PyPI overview, project links,
+and typed runtime metadata. Verify attribution, licensing, typing resources,
+and package presentation before publishing. Reject invalid limit types and
+frame offsets that could wrap during unsigned native conversion.
+
+Expand VS Code IntelliSense to table headers, nested/quoted namespace paths,
+metadata keys and values, booleans, arrays, inline tables, and typed value
+templates. Add optional cursor-entry suggestions and configured profile labels.
+Preserve document/frame 0.1 and existing language interfaces.
+
+See the [patch release notes](release/notes/v0.1.3.md).
+
 ## 0.1.2
 
 Align Maven publications with `xyz.younglion` and the VS Code extension with
