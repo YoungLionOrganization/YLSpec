@@ -5,7 +5,7 @@ const {readFileSync} = require('node:fs');
 const path = require('node:path');
 const {pathToFileURL} = require('node:url');
 const vscode = require('vscode');
-const {template} = require('../src/metadata.cjs');
+const {template, fields} = require('../src/metadata.cjs');
 exports.run = async () => {
   const {publisher, name} = require('../package.json');
   const extension = vscode.extensions.getExtension(`${publisher}.${name}`);
@@ -24,7 +24,9 @@ exports.run = async () => {
   await api.validate(unknown); assert.equal(vscode.languages.getDiagnostics(unknown.uri)[0].severity, vscode.DiagnosticSeverity.Warning);
   const completionDocument = await vscode.workspace.openTextDocument({language: 'ylspec', content: '[_ylspec]\npro'});
   const completion = await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', completionDocument.uri, new vscode.Position(1, 3));
-  assert.ok(completion.items.some(item => item.label === 'profile_version'));
+  const isMetadataCompletion = item => item.label === 'profile_version' &&
+    item.kind === vscode.CompletionItemKind.Property && item.detail === fields.profile_version.detail;
+  assert.ok(completion.items.some(isMetadataCompletion));
   async function accept(source, label, trigger) {
     const offset = source.indexOf('|');
     const document = await vscode.workspace.openTextDocument({language: 'ylspec', content: source.replace('|', '')});
@@ -69,7 +71,8 @@ exports.run = async () => {
   try {
     assert.equal(vscode.workspace.getConfiguration('ylspec', completionDocument.uri).get('completion.enabled'), false);
     const disabled = await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', completionDocument.uri, new vscode.Position(1, 3));
-    assert.ok(!disabled.items.some(item => item.label === 'profile_version'));
+    // Other VS Code providers may still offer words seen in open documents.
+    assert.ok(!disabled.items.some(isMetadataCompletion), JSON.stringify(disabled.items.map(item => ({label: item.label, kind: item.kind, detail: item.detail}))));
   } finally {await setCompletionEnabled(undefined);}
   const settings = vscode.workspace.getConfiguration('ylspec', document.uri);
   await settings.update('format.enabled', true, vscode.ConfigurationTarget.Global);
