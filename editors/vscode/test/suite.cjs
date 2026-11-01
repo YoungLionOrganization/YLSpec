@@ -25,6 +25,39 @@ exports.run = async () => {
   const completionDocument = await vscode.workspace.openTextDocument({language: 'ylspec', content: '[_ylspec]\npro'});
   const completion = await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', completionDocument.uri, new vscode.Position(1, 3));
   assert.ok(completion.items.some(item => item.label === 'profile_version'));
+  async function accept(source, label, trigger) {
+    const offset = source.indexOf('|');
+    const document = await vscode.workspace.openTextDocument({language: 'ylspec', content: source.replace('|', '')});
+    const position = document.positionAt(offset);
+    const result = await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', document.uri, position, trigger);
+    const item = result.items.find(item => item.label === label);
+    assert.ok(item, `Missing completion ${label}`);
+    const range = item.range?.replacing || item.range;
+    assert.ok(range, 'Completion must explicitly replace its partial token');
+    const edit = new vscode.WorkspaceEdit();
+    assert.equal(typeof item.insertText, 'string');
+    edit.replace(document.uri, range, item.insertText);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    return document;
+  }
+  const headerDocument = await accept('[|]', '_ylspec', '[');
+  assert.equal(headerDocument.getText(), '[_ylspec]');
+  const booleanDocument = await accept(template + 'enabled=t|rue # retained\n', 'true');
+  assert.equal(booleanDocument.getText(), template + 'enabled=true # retained\n');
+  await api.validate(booleanDocument);
+  assert.equal(vscode.languages.getDiagnostics(booleanDocument.uri).length, 0);
+  const valueDocument = await accept('[_ylspec]\nprofile="co|re.data"', '"core.data"', '"');
+  assert.equal(valueDocument.getText(), '[_ylspec]\nprofile="core.data"');
+  const arrayDocument = await vscode.workspace.openTextDocument({language: 'ylspec', content: template + 'flags=[]\n'});
+  const arrayPosition = arrayDocument.positionAt(arrayDocument.getText().indexOf('[]') + 1);
+  const arrayItems = await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', arrayDocument.uri, arrayPosition, '[');
+  assert.ok(arrayItems.items.some(item => item.label === 'false'));
+  const completionSettings = vscode.workspace.getConfiguration('ylspec', completionDocument.uri);
+  await completionSettings.update('completion.enabled', false, vscode.ConfigurationTarget.Global);
+  try {
+    const disabled = await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', completionDocument.uri, new vscode.Position(1, 3));
+    assert.ok(!disabled.items.some(item => item.label === 'profile_version'));
+  } finally {await completionSettings.update('completion.enabled', undefined, vscode.ConfigurationTarget.Global);}
   const settings = vscode.workspace.getConfiguration('ylspec', document.uri);
   await settings.update('format.enabled', true, vscode.ConfigurationTarget.Global);
   try {

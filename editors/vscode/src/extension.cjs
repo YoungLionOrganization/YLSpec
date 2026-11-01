@@ -4,6 +4,7 @@ const vscode = require('vscode');
 const {Worker} = require('node:worker_threads');
 const path = require('node:path');
 const {fields, template, tableAt, errorPosition} = require('./metadata.cjs');
+const {complete, MAX_COMPLETION_CHARS} = require('./completion.cjs');
 
 function activate(context) {
   const diagnostics = vscode.languages.createDiagnosticCollection('ylspec');
@@ -60,16 +61,38 @@ function activate(context) {
     vscode.workspace.onDidSaveTextDocument(schedule),
     vscode.workspace.onDidCloseTextDocument(document => {const key = document.uri.toString(); clearTimeout(timers.get(key)); timers.delete(key); diagnostics.delete(document.uri);}),
     vscode.workspace.onDidChangeConfiguration(event => {if (event.affectsConfiguration('ylspec')) for (const document of vscode.workspace.textDocuments) schedule(document);}),
+    vscode.window.onDidChangeTextEditorSelection(event => {
+      const document = event.textEditor.document, selection = event.selections[0];
+      if (document.languageId !== 'ylspec' || event.selections.length !== 1 || !selection.isEmpty ||
+          !config(document).get('completion.enabled', true) || !config(document).get('completion.autoShow', true)) return;
+      const text = document.getText(), offset = document.offsetAt(selection.active);
+      if (text.length > MAX_COMPLETION_CHARS || !/\[\s*$/.test(text.slice(Math.max(0, offset - 80), offset)) ||
+          !/^\s*\]/.test(text.slice(offset, offset + 80))) return;
+      if (complete(text, offset).length) void vscode.commands.executeCommand('editor.action.triggerSuggest');
+    }),
     vscode.commands.registerCommand('ylspec.validate', () => {const document = vscode.window.activeTextEditor?.document; if (document) return validate(document, true);}),
     vscode.commands.registerCommand('ylspec.newDocument', async () => {const document = await vscode.workspace.openTextDocument({language: 'ylspec', content: template}); await vscode.window.showTextDocument(document);}),
     vscode.languages.registerCompletionItemProvider(selector, {
       provideCompletionItems(document, position) {
-        if (tableAt(document.getText(new vscode.Range(new vscode.Position(0, 0), position))) !== '_ylspec') return [];
-        const prefix = document.lineAt(position.line).text.slice(0, position.character);
-        if (!/^\s*[A-Za-z_]*$/.test(prefix)) return [];
-        return Object.entries(fields).map(([name, info]) => {const item = new vscode.CompletionItem(name, vscode.CompletionItemKind.Property); item.insertText = name + ' = ' + info.value; item.detail = info.detail; return item;});
+        if (!config(document).get('completion.enabled', true)) return [];
+        const text = document.getText();
+        if (text.length > MAX_COMPLETION_CHARS) return [];
+        return new vscode.CompletionList(complete(text, document.offsetAt(position), {
+          profiles: config(document).get('completion.profiles', [])
+        }).map(suggestion => {
+          const item = new vscode.CompletionItem(suggestion.label, vscode.CompletionItemKind[suggestion.kind]);
+          item.insertText = suggestion.snippet ? new vscode.SnippetString(suggestion.insertText) : suggestion.insertText;
+          const start = document.positionAt(suggestion.start), end = document.positionAt(suggestion.end);
+          item.range = new vscode.Range(start, end);
+          item.detail = suggestion.detail;
+          item.documentation = new vscode.MarkdownString(suggestion.detail);
+          item.filterText = suggestion.filterText || suggestion.label;
+          item.sortText = String(suggestion.kind === 'Snippet' ? 1 : 0) + suggestion.label;
+          if (suggestion.followup) item.command = {command: 'editor.action.triggerSuggest', title: 'Suggest YLSpec values'};
+          return item;
+        }), true);
       }
-    }),
+    }, '[', '.', '=', ' ', '"', "'", ','),
     vscode.languages.registerHoverProvider(selector, {
       provideHover(document, position) {
         const line = document.lineAt(position.line).text, match = /^\s*(version|profile|profile_version|requires)\s*=/.exec(line);

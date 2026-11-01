@@ -18,6 +18,9 @@
   "extensionKind": ["workspace"],
   "capabilities": {"untrustedWorkspaces": {"supported": true}, "virtualWorkspaces": {"supported": true}},
   "contributes": {
+    "configurationDefaults": {
+      "[ylspec]": {"editor.quickSuggestions": {"other": "on", "comments": "off", "strings": "on"}, "editor.suggestOnTriggerCharacters": true}
+    },
     "languages": [{"id": "ylspec", "aliases": ["YLSpec", "ylspec"], "extensions": [".ylspec"], "configuration": "./language-configuration.json"}],
     "grammars": [{"language": "ylspec", "scopeName": "source.ylspec", "path": "./syntaxes/ylspec.tmLanguage.json"}],
     "snippets": [{"language": "ylspec", "path": "./snippets/ylspec.json"}],
@@ -25,6 +28,9 @@
     "configuration": {
       "title": "YLSpec",
       "properties": {
+        "ylspec.completion.enabled": {"type": "boolean", "default": true, "description": "Suggest table paths, reserved metadata keys, known profile values, booleans, and TOML value templates."},
+        "ylspec.completion.autoShow": {"type": "boolean", "default": true, "description": "Open suggestions when a single cursor enters an empty table header or array. Disable to use typing triggers and manual completion only."},
+        "ylspec.completion.profiles": {"type": "array", "items": {"type": "string", "minLength": 1}, "default": [], "uniqueItems": true, "description": "Additional profile identifiers to suggest alongside core.data. Suggestions do not register validators or approve profile compatibility."},
         "ylspec.validation.enabled": {"type": "boolean", "default": true, "description": "Validate YLSpec documents after edits and saves using the bundled C core."},
         "ylspec.validation.delay": {"type": "integer", "default": 350, "minimum": 100, "maximum": 5000, "description": "Delay in milliseconds before validating an edited document."},
         "ylspec.maxDocumentBytes": {"type": "integer", "default": 16777216, "minimum": 1024, "maximum": 67108864, "description": "Maximum UTF-8 document size sent to the validation worker."},
@@ -33,6 +39,6 @@
       }
     }
   },
-  "scripts": {"test": "node --test test/unit.test.cjs", "test:integration": "node test/run.cjs", "package": "node tools/package.cjs"},
+  "scripts": {"test": "node --test test/*.test.cjs", "test:integration": "node test/run.cjs", "package": "node tools/package.cjs"},
   "devDependencies": {"@vscode/vsce": "4.1.0", "@vscode/test-electron": "3.1.0", "vscode-textmate": "9.3.2", "vscode-oniguruma": "2.0.1"}
 }
