@@ -24,7 +24,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           test "$GITHUB_REF" = refs/heads/main
-          test -n "$NPM_TOKEN" || { echo '::error::Add the NPM_TOKEN repository secret.'; exit 1; }
+          test -n "$NPM_TOKEN" || { echo '::error::Add the NPM_TOKEN organization secret with access to this repository.'; exit 1; }
       - name: Download and verify the published release artifact
         env:
           GH_TOKEN: ${{ github.token }}

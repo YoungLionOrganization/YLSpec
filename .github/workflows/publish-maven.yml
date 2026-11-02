@@ -31,5 +31,5 @@ jobs:
           MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
         run: |
-          test -n "$MAVEN_CENTRAL_USERNAME" && test -n "$MAVEN_CENTRAL_PASSWORD" && test -n "$MAVEN_GPG_PRIVATE_KEY" || { echo '::error::Configure the Maven Central token and OpenPGP secrets.'; exit 1; }
+          test -n "$MAVEN_CENTRAL_USERNAME" && test -n "$MAVEN_CENTRAL_PASSWORD" && test -n "$MAVEN_GPG_PRIVATE_KEY" || { echo '::error::Configure the organization Maven Central and OpenPGP secrets with access to this repository.'; exit 1; }
           python scripts/publish_registry.py central

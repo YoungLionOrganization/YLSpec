@@ -110,3 +110,9 @@ existing release asset. PyPI does not allow reusing deleted filenames.
 The README's PyPI version and distribution badges reference the published
 `ylspec` project. Keep experimental status visible and add other registry badges
 only after the corresponding publication actually exists.
+
+## Organization secrets
+
+Publishing credentials can be inherited from organization Actions secrets. See
+[organization secret setup and availability checks](organization-secrets.md).
+Repository/environment overrides take precedence; remove obsolete copies.

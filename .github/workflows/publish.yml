@@ -75,7 +75,7 @@ jobs:
           PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         run: |
           if [ -z "$PYPI_API_TOKEN" ]; then
-            echo "::error::Add the PYPI_API_TOKEN repository secret in Settings > Secrets and variables > Actions."
+            echo "::error::Add the PYPI_API_TOKEN organization secret with access to this repository."
             exit 1
           fi
       - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
